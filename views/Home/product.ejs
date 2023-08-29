@@ -1,0 +1,190 @@
+<!-- Services Section Begin -->
+<section class="services spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="services__item">
+                    <i class="fa fa-car"></i>
+                    <h6>Free Shipping</h6>
+                    <p>For all oder over $99</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="services__item">
+                    <i class="fa fa-money"></i>
+                    <h6>Money Back Guarantee</h6>
+                    <p>If good have Problems</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="services__item">
+                    <i class="fa fa-support"></i>
+                    <h6>Online Support 24/7</h6>
+                    <p>Dedicated support</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="services__item">
+                    <i class="fa fa-headphones"></i>
+                    <h6>Payment Secure</h6>
+                    <p>100% secure payment</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Services Section End -->
+
+<section class="product spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 col-md-4">
+                <div class="section-title">
+                    <h4>New product</h4>
+                </div>
+            </div>
+            <div class="col-lg-8 col-md-8">
+                <ul class="filter__controls">
+                    <li class="active" data-filter="<%= categories[0].slug %>"
+                        data-category-id="<%= categories[0].id %>">
+                        <%= categories[0].name %>
+                    </li>
+
+                    <li data-filter="<%= categories[1].slug %>"
+                        data-category-id="<%= categories[1].id %>">
+                        <%= categories[1].name %>
+                    </li>
+
+                    <li data-filter="<%= categories[2].slug %>"
+                        data-category-id="<%= categories[2].id %>">
+                        <%= categories[2].name %>
+                    </li>
+
+                    <li data-filter="<%= categories[3].slug %>"
+                        data-category-id="<%= categories[3].id %>">
+                        <%= categories[3].name %>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+
+        <div class="row property__gallery" id="list_product"></div>
+    </div>
+</section>
+
+
+<!-- Instagram Begin -->
+<div class="instagram">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
+                <div class="instagram__item set-bg" data-setbg="/images/instagram/insta-1.jpg">
+                    <div class="instagram__text">
+                        <i class="fa fa-instagram"></i>
+                        <a href="#">@ Lazada_shop</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
+                <div class="instagram__item set-bg" data-setbg="/images/instagram/insta-2.jpg">
+                    <div class="instagram__text">
+                        <i class="fa fa-instagram"></i>
+                        <a href="#">@ Lazada_shop</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
+                <div class="instagram__item set-bg" data-setbg="/images/instagram/insta-3.jpg">
+                    <div class="instagram__text">
+                        <i class="fa fa-instagram"></i>
+                        <a href="#">@ Lazada_shop</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
+                <div class="instagram__item set-bg" data-setbg="/images/instagram/insta-4.jpg">
+                    <div class="instagram__text">
+                        <i class="fa fa-instagram"></i>
+                        <a href="#">@ Lazada_shop</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
+                <div class="instagram__item set-bg" data-setbg="/images/instagram/insta-5.jpg">
+                    <div class="instagram__text">
+                        <i class="fa fa-instagram"></i>
+                        <a href="#">@ Lazada_shop</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
+                <div class="instagram__item set-bg" data-setbg="/images/instagram/insta-6.jpg">
+                    <div class="instagram__text">
+                        <i class="fa fa-instagram"></i>
+                        <a href="#">@ Lazada_shop</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Instagram End -->
+
+<script>
+
+    const domain = 'http://localhost:7000';
+
+    async function fetchProduct(id) {
+        try {
+            const response = await fetch(`${domain}/filter?categoryId=${id}&limit=32`, {
+                method: 'GET',
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                    "User-Agent": "5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"
+                },
+            });
+
+
+            const data = await response.json();
+
+            var tash = "";
+
+            for (let h in data.products) {
+                const ne = data.products[h];
+                tash += `<div class="col-lg-3 col-md-4 col-sm-6">`;
+                tash += `<div class="product__item">`;
+                tash += `<image class="product__item__pic" src="${ne.image}" />`;
+                tash += `<ul class="product__hover">`;
+                tash += `<li><a href="${ne.image}" class="image-popup"><span class="arrow_expand"></span></a></li>`;
+                tash += `<li><a href="#"><span class="icon_heart_alt"></span></a></li>`;
+                tash += `<li><a href="#"><span class="icon_bag_alt"></span></a></li></ul></div>`;
+                tash += `<div class="product__item__text"><h6><a href="#">${ne.prName}</a></h6>`;
+                tash += `<div class="product__price">${ne.cost} VND</div></div></div>`;
+            }
+
+            document.querySelector("#list_product").innerHTML = tash;
+            // Now you can update the page with the filtered results if needed
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    fetchProduct(1);
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const filterControls = document.querySelectorAll('.filter__controls li[data-filter]');
+
+        filterControls.forEach(filterControl => {
+            filterControl.addEventListener('click', async function () {
+                const dataFilterValue = this.getAttribute('data-filter');
+                const categoryId = this.getAttribute('data-category-id');
+
+                fetchProduct(categoryId);
+            });
+        });
+    });
+
+
+</script>
