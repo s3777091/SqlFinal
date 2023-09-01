@@ -1,15 +1,18 @@
 DROP PROCEDURE IF EXISTS addProductToCart;
+
+DELIMITER //
+
 CREATE PROCEDURE addProductToCart(
     IN userIN INT,
     IN productIn INT,
-    IN qualityIN INT
+    IN quantityIN INT
 )
 BEGIN
     DECLARE userCheck INT;
-    DECLARE produceCheck INT;
+    DECLARE productCheck INT;
     DECLARE cart_id INT;
     DECLARE productWarehouseId INT;
-    DECLARE existing_quality INT;
+    DECLARE existing_quantity INT;
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
         BEGIN
@@ -27,45 +30,47 @@ BEGIN
     END IF;
 
     -- Check if the product exists
-    SELECT id , warehouseId INTO produceCheck, productWarehouseId FROM products WHERE id = productIn;
+    SELECT id, warehouseId INTO productCheck, productWarehouseId FROM products WHERE id = productIn;
 
-    IF produceCheck is NULL THEN
+    IF productCheck IS NULL THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Something went wrong with the product. Please try again.';
     END IF;
 
-    -- Find or create new the cart
+    -- Find or create a new cart
     SELECT id INTO cart_id FROM carts WHERE userId = userIN AND status = 'on-going';
+
     IF cart_id IS NULL THEN
         SET @warehouseDetails = (SELECT CONCAT_WS(', ', city, province, district, street) FROM warehouses WHERE id = productWarehouseId);
-        INSERT INTO carts (userId, deliveryFrom, status) VALUES (userIN, @warehouseDetails,'on-going');
+        INSERT INTO carts (userId, deliveryFrom, status) VALUES (userIN, @warehouseDetails, 'on-going');
         SET cart_id = LAST_INSERT_ID();
     END IF;
 
     -- Lock the row for the product in the qualities table
     -- Check if the product is already in the cart
-    SELECT quality INTO existing_quality FROM qualities WHERE productID = productIn AND cartId = cart_id FOR UPDATE;
+    SELECT quality INTO existing_quantity FROM qualities WHERE productID = productIn AND cartId = cart_id FOR UPDATE;
 
-    IF existing_quality IS NOT NULL THEN
-        UPDATE qualities SET quality = quality + quality WHERE productID = productIn AND cartId = cart_id;
+    IF existing_quantity IS NOT NULL THEN
+        UPDATE qualities SET quality = quality + quantityIN WHERE productID = productIn AND cartId = cart_id;
     ELSE
-        INSERT INTO qualities (productID, product_name, product_image,product_cost, quality, cartId)
-        SELECT
-            id, prname, image, cost, qualityIN, cart_id
-        FROM
-            products
-        WHERE
-            id = productIn;
+        INSERT INTO qualities (productID, product_name, product_image, product_cost, quality, cartId)
+        SELECT id, prname, image, cost, quantityIN, cart_id
+        FROM products
+        WHERE id = productIn;
     END IF;
 
     COMMIT;
-END;
+END //
+
+DELIMITER ;
 
 
 DROP PROCEDURE IF EXISTS PerformPayment;
-# Payment method
+
+DELIMITER //
+
 CREATE PROCEDURE PerformPayment(
     IN locationChangeIN VARCHAR(1024),
-    IN acceptIn BOOLEAN,
+    IN acceptIn INT,
     IN userIdIn INT
 )
 BEGIN
@@ -113,8 +118,12 @@ BEGIN
     UPDATE qualities SET status = 'success' WHERE cartId = cartId AND status = 'on-going';
 
     COMMIT;
-END;
+END //
 
+DELIMITER ;
+
+
+DELIMITER //
 DROP TRIGGER IF EXISTS check_update_quality;
 CREATE TRIGGER check_update_quality
     BEFORE UPDATE ON qualities
@@ -123,7 +132,10 @@ BEGIN
     IF NEW.status = 'success' THEN
         UPDATE products SET amount = amount - NEW.quality WHERE id = NEW.productID;
     END IF;
-END;
+END //
+DELIMITER ;
+
+DELIMITER //
 
 DROP TRIGGER IF EXISTS check_update_product;
 CREATE TRIGGER check_update_product
@@ -135,7 +147,12 @@ BEGIN
     ELSEIF (NEW.amount - OLD.amount) > 0 THEN
         UPDATE warehouses SET available = available + (NEW.space * (NEW.amount - OLD.amount)) WHERE id = NEW.warehouseId;
     END IF;
-END;
+END //
+
+DELIMITER ;
+
+
+DELIMITER //
 
 DROP TRIGGER IF EXISTS check_space_before_insert;
 CREATE TRIGGER check_space_before_insert
@@ -146,8 +163,13 @@ BEGIN
         SIGNAL SQLSTATE '45000'
             SET MESSAGE_TEXT = 'Not enough space in any warehouse';
     END IF;
-END;
+END //
+
+DELIMITER ;
 
 COMMIT;
 
 ALTER TABLE products ADD FULLTEXT(prName);
+
+
+SHOW TRIGGERS ;

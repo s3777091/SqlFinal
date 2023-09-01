@@ -5,14 +5,9 @@ const Category = db.category;
 const Role = db.role;
 const WareHouse = db.warehouse;
 
+require("dotenv").config();
 
-async function AutoAddProduct() {
-
-    
-
-}
-
-
+const { createProduct, addCode } = require('./config/tool');
 
 
 async function initial() {
@@ -114,6 +109,20 @@ async function initial() {
         ], { transaction });
 
         await transaction.commit();
+
+
+        addCode('141fbff3-da9a-cf08-de75-ce88e3ea8fc8');
+
+
+        const productIdentifiers = ["931", "915", "2549", "1520", "27498", "1846", "1789"];
+
+        productIdentifiers.forEach(identifier => {
+            console.log('////');
+            createProduct(identifier, "1", 80, 1);
+            createProduct(identifier, "2", 80, 2);
+        });
+
+
     } catch (error) {
         await transaction.rollback();
         console.log(error.message);
@@ -121,7 +130,7 @@ async function initial() {
 }
 
 
-db.sequelize.sync({force: true}).then(async () => {
+db.sequelize.sync({ force: true }).then(async () => {
     console.log('Drop and Re-sync Database with { force: true }');
     await initial();
 });

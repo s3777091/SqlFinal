@@ -7,12 +7,7 @@ const db = require("../models");
 const Product = db.product;
 const Category = db.category;
 
-const User = db.user;
-const Quality = db.quality;
-const Cart = db.cart;
-
-const config = require("../config/auth-config");
-const jwt = require("jsonwebtoken");
+const Op = db.Sequelize.Op;
 
 
 require("dotenv").config();
@@ -89,7 +84,57 @@ router.get('/filter', async (req, res, next) => {
   }
 });
 
+router.post("/search", async (req, res, next) => {
+  try {
+    const searchTerm = req.body.search;
+    const page = req.query.page || 1;
+    const pageSize = 10;
 
+    const products = await Product.findAndCountAll({
+      where: {
+        [Op.or]: [
+          { prName: { [Op.like]: `%${searchTerm}%` } },
+        ],
+      },
+      // Implement pagination using offset and limit
+      offset: (page - 1) * pageSize,
+      limit: pageSize,
+      // Enable Full-Text Search
+      attributes: {
+        include: [
+          [db.sequelize.literal(`MATCH(prName) AGAINST('${searchTerm}' IN BOOLEAN MODE)`), "score"]
+        ]
+      },
+      // Order by Full-Text Search score
+      order: [[db.sequelize.literal("score"), "DESC"]],
+    });
+
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+});
+
+
+router.post("/add_code", async (req, res, next) => {
+  try {
+    const [cart, created] = await Admin.findOrCreate({
+      where: {
+        code: req.body.code,
+      },
+      defaults: {
+        link: process.env.VIDEO
+      }
+    });
+    if (!created) {
+      return res.status(400).send({ message: "Cart code already exists." });
+    }
+
+    return res.status(200).send({ message: "code added successfully.", code: cart.code });
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+});
 
 
 module.exports = router;
