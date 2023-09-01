@@ -50,18 +50,15 @@
                         <%= categories[0].name %>
                     </li>
 
-                    <li data-filter="<%= categories[1].slug %>"
-                        data-category-id="<%= categories[1].id %>">
+                    <li data-filter="<%= categories[1].slug %>" data-category-id="<%= categories[1].id %>">
                         <%= categories[1].name %>
                     </li>
 
-                    <li data-filter="<%= categories[2].slug %>"
-                        data-category-id="<%= categories[2].id %>">
+                    <li data-filter="<%= categories[2].slug %>" data-category-id="<%= categories[2].id %>">
                         <%= categories[2].name %>
                     </li>
 
-                    <li data-filter="<%= categories[3].slug %>"
-                        data-category-id="<%= categories[3].id %>">
+                    <li data-filter="<%= categories[3].slug %>" data-category-id="<%= categories[3].id %>">
                         <%= categories[3].name %>
                     </li>
 
@@ -157,15 +154,12 @@
                 tash += `<div class="product__item">`;
                 tash += `<image class="product__item__pic" src="${ne.image}" />`;
                 tash += `<ul class="product__hover">`;
-                tash += `<li><a href="${ne.image}" class="image-popup"><span class="arrow_expand"></span></a></li>`;
-                tash += `<li><a href="#"><span class="icon_heart_alt"></span></a></li>`;
-                tash += `<li><a href="#"><span class="icon_bag_alt"></span></a></li></ul></div>`;
+                tash += `<li><a onclick="addCart(id = '${ne.id}', ql = '1')" ><span class="icon_bag_alt"></span></a></li></ul></div>`;
                 tash += `<div class="product__item__text"><h6><a href="#">${ne.prName}</a></h6>`;
                 tash += `<div class="product__price">${ne.cost} VND</div></div></div>`;
             }
 
             document.querySelector("#list_product").innerHTML = tash;
-            // Now you can update the page with the filtered results if needed
         } catch (error) {
             console.error(error);
         }
@@ -185,6 +179,32 @@
             });
         });
     });
+
+
+    
+    async function addCart(id, ql) {
+
+        const payload = JSON.stringify({
+            idProduct: id,
+            quality: ql
+        });
+        const response = await fetch(`${domain}/carts/add`, {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: payload,
+        });
+
+        if (response.status >= 200 && response.status <= 299) {
+            alert("success add product to cart");
+        }
+
+        if(response.status === 403){
+            alert("Pls, login to add product to cart");
+        }
+    }
 
 
 </script>

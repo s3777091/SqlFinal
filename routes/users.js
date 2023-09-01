@@ -16,9 +16,8 @@ const Op = db.Sequelize.Op;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
-/* GET users listing. */
 router.get('/', function (req, res, next) {
-  let errorMessage = ''; // Define the errorMessage variable
+  let errorMessage = '';
   res.render('User/auth', { title: 'Login page', errorMessage });
 });
 
