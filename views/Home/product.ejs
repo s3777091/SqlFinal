@@ -194,7 +194,16 @@
 <script>
 
     const domain = 'http://localhost:7000';
-
+    async function fetchProducts(){
+        const response = await fetch(`${domain}/filter?categoryId=${id}&limit=32`, {
+                method: 'GET',
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                    "User-Agent": "5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"
+                },
+            });
+    }
     // async function fetchProduct(id) {
     //     try {
     //         const response = await fetch(`${domain}/filter?categoryId=${id}&limit=32`, {
