@@ -1,0 +1,255 @@
+<section class="product-details spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="product__details__pic">
+                    <div class="product__details__pic__left product__thumb nice-scroll">
+                        <% productInfo.listImage.forEach(function(image, index) { %>
+                            <a class="pt <%= index === 0 ? 'active' : '' %>" href="#product-<%= index + 1 %>">
+                                <img src="<%= image.small_url %>" alt="">
+                            </a>
+                            <% }); %>
+                    </div>
+                    <div class="product__details__slider__content">
+                        <div class="product__details__pic__slider owl-carousel">
+                            <% productInfo.listImage.forEach(function(image, index) { %>
+                                <img data-hash="product-<%= index + 1 %>" class="product__big__img"
+                                    src="<%= image.large_url %>" alt="">
+                                <% }); %>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="product__details__text">
+                    <h3>
+                        <%= productInfo.name %> <span>Brand: <%= productInfo.brand %></span>
+                    </h3>
+                    <div class="product__details__price">
+                        <%= productInfo.price %> VND
+                    </div>
+                    <p>
+                        <%= productInfo.short_description %>
+                    </p>
+
+                    <div class="product__details__button">
+                        <div class="quantity">
+                            <span>Quantity:</span>
+                            <div class="pro-qty">
+                                <input type="text" id="quantityInput" value="1">
+                            </div>
+                        </div>
+                        <a href="#" class="cart-btn" data-product-id="<%= productInfo.id %>" data-quantity="1">
+                            <span class="icon_bag_alt"></span> Add to cart
+                        </a>
+                    </div>
+
+
+                    <div class="product__details__widget">
+                        <ul>
+                            <% if (productInfo.options && productInfo.options.length> 0) { %>
+                                <% productInfo.options.forEach(function (op) { %>
+                                    <li>
+                                        <span>
+                                            <% if (op.name.toLowerCase()==='color' ) { %>
+                                                Available color:
+                                                <% } else { %>
+                                                    <%= op.name %>:
+                                                        <% } %>
+                                        </span>
+                                        <div class="<%= op.code %>-checkbox">
+                                            <% op.values.forEach(function (value) { %>
+                                                <label for="<%= op.code + '-' + value.label.toLowerCase() %>">
+                                                    <input type="radio" name="<%= op.code %>_radio"
+                                                        id="<%= op.code + '-' + value.label.toLowerCase() %>"
+                                                        <%=op.show_preview_image ? 'data-preview="preview-' + op.code
+                                                        + '-' + value.label.toLowerCase() + '"' : '' %>>
+                                                    <span
+                                                        class="checkmark <%= op.code + '-' + value.label.toLowerCase() %>"></span>
+                                                    <%= value.label %>
+                                                </label>
+                                                <% }); %>
+                                        </div>
+                                    </li>
+                                    <% }); %>
+                                        <% } else { %>
+                                            <li>No options available</li>
+                                            <% } %>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="product__details__tab">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#tabs-1" role="tab">Description</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tabs-2" role="tab">Specification</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab">Reviews</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tabs-1" role="tabpanel">
+                            <h6>Description</h6>
+                            <div class="center-check">
+                                <%- productInfo.description %>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tabs-2" role="tabpanel">
+                            <h6>Specification</h6>
+                            <div class="product__details__widget">
+                                <ul>
+                                    <% productInfo.specifications.forEach(function(spec) { %>
+                                        <li>
+                                            <div class="color__checkbox">
+                                                <% spec.attributes.forEach(function(attr) { %>
+                                                    <p>
+                                                        <%= attr.name %>: <% if (/<[a-z][\s\S]*>/i.test(attr.value)) {
+                                                                %>
+                                                                <%- attr.value %>
+                                                                    <% } else { %>
+                                                                        <%= attr.value %>
+                                                                            <% } %>
+                                                    </p>
+                                                    <% }); %>
+                                            </div>
+                                        </li>
+                                        <% }); %>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tabs-3" role="tabpanel">
+
+                            <section class="blog-details spad">
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="col-lg-8 col-md-8">
+                                            <div class="blog__details__content">
+                                                <div class="blog__details__comment">
+
+                                                    <% productInfo.comment_detail.forEach(function(spc) { %>
+
+                                                        <div class="blog__comment__item">
+                                                            <div class="blog__comment__item__pic">
+                                                                <img src="<%= spc.created_by_image %>" alt="">
+                                                            </div>
+                                                            <div class="blog__comment__item__text">
+                                                                <h6>
+                                                                    <%= spc.created_by_name %>
+                                                                </h6>
+                                                                <p>
+                                                                    <%= spc.content %>
+                                                                </p>
+                                                            </div>
+                                                        </div>
+
+                                                        <% if (spc.images && spc.images.length> 0) { %>
+                                                            <div class="blog__comment__item blog__comment__item--reply">
+                                                                <div class="fixed-size-image">
+                                                                    <img src="<%= spc.images[0].full_path %>"
+                                                                        alt="Comment Image">
+                                                                </div>
+                                                            </div>
+                                                            <% } else { %>
+                                                                <div
+                                                                    class="blog__comment__item blog__comment__item--reply">
+                                                                    <div class="blog__comment__item__text">
+                                                                        <p>Không có hình ảnh</p>
+                                                                    </div>
+                                                                </div>
+                                                                <% } %>
+                                                                    <% }); %>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<script>
+    const domain = 'http://localhost:7000';
+
+    const selectedOptions = {};
+    let text = '';
+
+    document.addEventListener("change", function (event) {
+        const target = event.target;
+
+        if (target.type === "radio") {
+            const labelElement = document.querySelector(`label[for="${target.id}"]`);
+            if (labelElement) {
+                const labelContent = labelElement.textContent.trim();
+
+                const optionCode = target.id.replace("option", "").split("-")[0];
+
+                selectedOptions[optionCode] = {
+                    code: target.id,
+                    value: labelContent
+                };
+            }
+        }
+
+        text = Object.values(selectedOptions)
+            .map(option => `Code: ${option.code} Value: ${option.value}`)
+            .join(" ");
+    });
+
+
+
+    async function addCart(id, ql) {
+        const payload = JSON.stringify({
+            idProduct: id,
+            quality: ql,
+            productOption: text
+        });
+
+        console.log(text);
+        const response = await fetch(`${domain}/carts/add`, {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: payload,
+        });
+
+        if (response.status >= 200 && response.status <= 299) {
+            alert("Success: Product added to cart");
+        }
+
+        if (response.status === 403) {
+            alert("Please log in to add a product to the cart");
+        }
+    }
+
+    const quantityInput = document.getElementById("quantityInput");
+    const addToCartBtn = document.querySelector(".cart-btn");
+
+
+    quantityInput.addEventListener("input", function () {
+        addToCartBtn.setAttribute("data-quantity", quantityInput.value);
+    });
+
+    addToCartBtn.addEventListener("click", function () {
+        const productId = addToCartBtn.getAttribute("data-product-id");
+        const quantity = addToCartBtn.getAttribute("data-quantity");
+
+        addCart(productId, quantity);
+    });
+
+</script>

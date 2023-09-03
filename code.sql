@@ -5,7 +5,8 @@ DELIMITER //
 CREATE PROCEDURE addProductToCart(
     IN userIN INT,
     IN productIn INT,
-    IN quantityIN INT
+    IN quantityIN INT,
+    IN ProductOption VARCHAR(1024)
 )
 BEGIN
     DECLARE userCheck INT;
@@ -45,8 +46,6 @@ BEGIN
         SET cart_id = LAST_INSERT_ID();
     END IF;
 
-    -- Lock the row for the product in the qualities table
-    -- Check if the product is already in the cart
     SELECT quality INTO existing_quantity FROM qualities WHERE productID = productIn AND cartId = cart_id FOR UPDATE;
 
     IF existing_quantity IS NOT NULL THEN
@@ -56,6 +55,8 @@ BEGIN
         SELECT id, prname, image, cost, quantityIN, cart_id
         FROM products
         WHERE id = productIn;
+
+        UPDATE qualities SET product_option = ProductOption WHERE productID = productIn AND cartId = cart_id;
     END IF;
 
     COMMIT;

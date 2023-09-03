@@ -29,13 +29,14 @@ router.post("/add", authJwt.verifyToken, async (req, res, next) => {
 
     const productId = req.body.idProduct;
     const quality = req.body.quality;
+    const option = req.body.productOption;
 
     try {
         const decoded = jwt.verify(req.session.token, config.secret);
         const user = await User.findByPk(decoded.id);
 
-        await Sequelize.query('CALL addProductToCart(?, ?, ?)',
-            { replacements: [user.id, productId, quality] }
+        await Sequelize.query('CALL addProductToCart(?, ?, ?, ?)',
+            { replacements: [user.id, productId, quality, option] }
         );
 
         await transaction.commit();
@@ -51,58 +52,58 @@ router.post("/add", authJwt.verifyToken, async (req, res, next) => {
 
 router.post("/update", authJwt.verifyToken, async (req, res, next) => {
     const transaction = await db.sequelize.transaction();
-  
+
     try {
-      const decoded = jwt.verify(req.session.token, config.secret);
-      const user = await User.findByPk(decoded.id, { transaction });
-  
-      const productId = req.body.productId;
-      const newQuantity = req.body.newQuantity;
-  
-      const cart = await Cart.findOne({
-        where: {
-          userId: user.id,
-          status: 'on-going',
-        },
-        transaction,
-      });
-  
-      if (!cart) {
-        await transaction.rollback();
-        return res.status(402).send({
-          message: "Cart is empty.",
+        const decoded = jwt.verify(req.session.token, config.secret);
+        const user = await User.findByPk(decoded.id, { transaction });
+
+        const productId = req.body.productId;
+        const newQuantity = req.body.newQuantity;
+
+        const cart = await Cart.findOne({
+            where: {
+                userId: user.id,
+                status: 'on-going',
+            },
+            transaction,
         });
-      }
-  
-      const quality = await Quality.findOne({
-        where: {
-          cartId: cart.id,
-          productID: productId,
-        },
-        transaction,
-      });
-  
-      if (!quality) {
-        await transaction.rollback();
-        return res.status(404).send({
-          message: "Product not found in the cart.",
+
+        if (!cart) {
+            await transaction.rollback();
+            return res.status(402).send({
+                message: "Cart is empty.",
+            });
+        }
+
+        const quality = await Quality.findOne({
+            where: {
+                cartId: cart.id,
+                productID: productId,
+            },
+            transaction,
         });
-      }
-  
-      // Update the quantity of the quality entry
-      quality.quantity = newQuantity;
-      await quality.save({ transaction });
-  
-      await transaction.commit();
-  
-      return res.status(200).send({ message: 'Success update carts' });
+
+        if (!quality) {
+            await transaction.rollback();
+            return res.status(404).send({
+                message: "Product not found in the cart.",
+            });
+        }
+
+        // Update the quantity of the quality entry
+        quality.quantity = newQuantity;
+        await quality.save({ transaction });
+
+        await transaction.commit();
+
+        return res.status(200).send({ message: 'Success update carts' });
     } catch (error) {
-      await transaction.rollback();
-      console.log(error.message);
-      return res.status(500).send({ message: error.message });
+        await transaction.rollback();
+        console.log(error.message);
+        return res.status(500).send({ message: error.message });
     }
-  });
-  
+});
+
 
 
 router.post("/delete", authJwt.verifyToken, async (req, res, next) => {
@@ -204,9 +205,5 @@ router.get('/data', async (req, res, next) => {
         next(error);
     }
 });
-
-
-
-
 
 module.exports = router;
