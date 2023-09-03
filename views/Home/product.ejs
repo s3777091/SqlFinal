@@ -86,7 +86,7 @@
     </div>
 </section>
 <!-- Instagram Begin -->
-<div class="instagram">
+<!-- <div class="instagram">
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-2 col-md-4 col-sm-4 p-0">
@@ -139,7 +139,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->
 <!-- Instagram End -->
 
 <div id="products-wrapper" >
@@ -251,6 +251,7 @@
 
     const domain = 'http://localhost:7000';
     async function fetchProducts(){
+        try{
         const response = await fetch(`${domain}/filter?categoryId=${id}&limit=32`, {
                 method: 'GET',
                 headers: {

@@ -14,6 +14,8 @@ const compression = require('compression');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var CartsRouter = require('./routes/payment');
+var adminRouter = require('./routes/admin');
+var sellerRouter = require('./routes/seller');
 
 var ProductRouter = require('./routes/product');
 
@@ -59,7 +61,8 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/carts', CartsRouter);
 app.use('/product', ProductRouter);
-
+app.use('/admin',adminRouter);
+app.use('/seller',sellerRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

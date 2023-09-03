@@ -24,6 +24,11 @@
             <!-- <input type="text" id="sign-up-type" class="input" placeholder="Type" /> -->
             <input type="email" id="sign-up-email" class="input" placeholder="Email" />
             <input type="password" id="sign-up-password" class="input" placeholder="Password" />
+            <select class="input" name="role" id="role" style="width: 95%;">
+                <option value="admin">admin</option>
+                <option value="user">user</option>
+                <option value="seller">seller</option>
+              </select>
             <div id="error-mess" style="padding: 20px;" >Can't create an account. Error: </div>
             <div id="success-mess" style="padding: 20px;">Sign up success</div>
         </div>
@@ -41,9 +46,9 @@
 
 
             <div class="form-holder" method="post">
-                <input type="text" name="username" class="input" id = "sign-in-username" placeholder="User Name" required/>
+                <input type="text" name="username" class="input" id = "sign-in-email" placeholder="Email" required/>
                 <input type="password" name="password" class="input" id = "sign-in-password" placeholder="Password" required/>
-                <div id="error-mess-sign-in" style="padding: 20px;" >Can't create an account. Error: </div>
+                <div id="error-mess-sign-in" style="padding: 20px;" ></div>
                 <div id="success-mess-sign-in" style="padding: 20px;">Sign in success</div>
                 <button class="submit-btn" id = "submit-signIn-btn">Log in</button>
             </div>
@@ -70,30 +75,47 @@
     submitSignInBtn.addEventListener('click',async (e) =>{
         errorMessageSignIn.style.innerHTML = "";
         var data = {
-                    username: document.getElementById("sign-in-username").value,
+                    email: document.getElementById("sign-in-email").value,
                     password: document.getElementById("sign-in-password").value,
                     };
         const response = await postData(baseURL+"/sign_in",data)
         if(response.status === 200){
             successMessageSignIn.style.display = "block"; 
-                    setTimeout(function() {
-                        window.location.href = "/";                        
-                    }, 1000);
+            response.json().then((data) => {
+                var role = data.role[0].name;
+                if(role === "admin"){
+                setTimeout(function() {
+                window.location.href = "/admin";                        
+                }, 1000);
+            }
+            else if(role ==="seller"){
+                setTimeout(function() {
+                window.location.href = "/seller";                        
+                }, 1000);
+            }
+            else{
+                setTimeout(function() {
+                window.location.href = "/";                        
+                }, 1000);
+            }
+            });
         }
         if(response.status === 400){
             errorMessageSignIn.style.display = "block"; 
                 response.json().then((data) => {
+                    console.log(data)
                     errorMessageSignIn.style.innerHTML += data ;
             });
         }    
     });
     submitSignUpBtn.addEventListener('click',async (e) =>{
         errorMessage.style.innerHTML = "";
+        var role = document.getElementById("role");
         var data = {
             username: document.getElementById("sign-up-name").value,
             email: document.getElementById("sign-up-email").value,
             password: document.getElementById("sign-up-password").value,
-            roles: ["admin"]
+            roles: [role.value]
         };
         const response = await postData(baseURL+"/sign_up",data)
         console.log(response)

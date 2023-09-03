@@ -63,7 +63,7 @@ router.post("/sign_in", async (req, res, next) => {
   try {
     const user = await User.findOne({
       where: {
-        username: req.body.username,
+        email: req.body.email,
       },
       transaction,
     });
@@ -106,7 +106,7 @@ router.post("/sign_in", async (req, res, next) => {
 
     await transaction.commit();
 
-    res.status(200).json("Sign in success");
+    res.status(200).json({message:"Sign in success",role:roles});
 
   } catch (error) {
     await transaction.rollback();
@@ -136,8 +136,8 @@ router.post("/sign_up", async (req, res, next) => {
       amount: '99999999999', //Test Money
       password: bcrypt.hashSync(req.body.password, 8),
     }, { transaction });
-
     const rolesToSet = req.body.roles ? req.body.roles : [1];
+    console.log(rolesToSet)
     const roles = await Role.findAll({
       where: {
         name: {
@@ -146,7 +146,6 @@ router.post("/sign_up", async (req, res, next) => {
       },
       transaction,
     });
-
     const result = await user.setRoles(roles, { transaction });
     if (result) {
       await transaction.commit();
@@ -158,7 +157,7 @@ router.post("/sign_up", async (req, res, next) => {
   } catch (error) {
     await transaction.rollback();
     errorMessage = error.message;
-    return res.json(errorMessage);
+    return res.status(400).json(errorMessage);
   }
 });
 
