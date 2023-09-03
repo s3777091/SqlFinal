@@ -154,6 +154,7 @@
                 tash += `<div class="product__item">`;
                 tash += `<image class="product__item__pic" src="${ne.image}" />`;
                 tash += `<ul class="product__hover">`;
+                tash += `<li><a href="/product/detail?prId=${ne.prId}"><span class="arrow_expand"></span></a></li>`;    
                 tash += `<li><a onclick="addCart(id = '${ne.id}', ql = '1')" ><span class="icon_bag_alt"></span></a></li></ul></div>`;
                 tash += `<div class="product__item__text"><h6><a href="#">${ne.prName}</a></h6>`;
                 tash += `<div class="product__price">${ne.cost} VND</div></div></div>`;
@@ -186,7 +187,8 @@
 
         const payload = JSON.stringify({
             idProduct: id,
-            quality: ql
+            quality: ql,
+            productOption: 'null',
         });
         const response = await fetch(`${domain}/carts/add`, {
             method: "POST",

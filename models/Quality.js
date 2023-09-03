@@ -17,6 +17,10 @@ module.exports = (sequelize) => {
                 fields: ['status_quality_idx']
             }]
         },
+        product_option: {
+            type: DataTypes.STRING(1024),
+            defaultValue: 'null'
+        },
         product_image: {
             type: DataTypes.STRING(1024)
         },
