@@ -16,7 +16,6 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 
-
 router.get('/', function (req, res, next) {
   let errorMessage = '';
   res.render('User/auth', { title: 'Login page', errorMessage });
@@ -26,9 +25,7 @@ router.get('/', function (req, res, next) {
 router.get('/sign_out', async function (req, res, next) {
   try {
     req.session = null;
-    return res.status(200).send({
-      message: "You've been signed out!"
-    });
+    return res.status(200).json("You've been signed out!");
   } catch (err) {
     this.next(err);
   }
@@ -37,15 +34,14 @@ router.get('/sign_out', async function (req, res, next) {
 
 router.get('/information', async function (req, res, next) {
   try {
+    console.log(req.session);
     const decoded = jwt.verify(req.session.token, config.secret);
     const user = await User.findByPk(decoded.id);
 
     if (!user) {
-      return res.status(401).send({
-        message: "User not found!",
-      });
+      return res.status(401).json("User not found");
     }
-
+    
     const userRoles = await user.getRoles();
 
     return res.status(200).send({
@@ -76,7 +72,7 @@ router.post("/sign_in", async (req, res, next) => {
     if (!user) {
       await transaction.rollback();
       errorMessage = "User not found.";
-      return res.render('User/auth', { errorMessage }); // Pass the error message to the template
+      return res.status(400).json(errorMessage); // Pass the error message to the template
     }
 
     const passwordIsValid = bcrypt.compareSync(
@@ -88,7 +84,7 @@ router.post("/sign_in", async (req, res, next) => {
     if (!passwordIsValid) {
       await transaction.rollback();
       errorMessage = "Invalid password.";
-      return res.render('User/auth', { errorMessage }); // Pass the error message to the template
+      return res.status(400).json(errorMessage); // Pass the error message to the template
     }
 
     const token = jwt.sign({ id: user.id },
@@ -110,12 +106,12 @@ router.post("/sign_in", async (req, res, next) => {
 
     await transaction.commit();
 
-    res.redirect("/");
+    res.status(200).json("Sign in success");
 
   } catch (error) {
     await transaction.rollback();
     errorMessage = error.message;
-    return res.render('User/auth', { errorMessage });
+    return res.status(400).json(errorMessage);
   }
 
 });
@@ -128,6 +124,12 @@ router.post("/sign_up", async (req, res, next) => {
 
   const transaction = await db.sequelize.transaction();
   try {
+    const user1 = await db.user.findOne({
+      where: { email: req.body.email },
+    })
+    if(user1){
+      return res.status(400).json("User already exist");
+    }
     const user = await db.user.create({
       username: req.body.username,
       email: req.body.email,
@@ -146,19 +148,18 @@ router.post("/sign_up", async (req, res, next) => {
     });
 
     const result = await user.setRoles(roles, { transaction });
-
     if (result) {
       await transaction.commit();
-      errorMessage = "User not found.";
-
-      return res.render('User/auth', { errorMessage });
+      // errorMessage = "User not found.";
+      return res.json("Sign up success");
     }
+    await transaction.rollback();
+    return res.status(400).json("Sign up failed, please try again");
   } catch (error) {
     await transaction.rollback();
     errorMessage = error.message;
-    return res.render('User/auth', { errorMessage });
+    return res.json(errorMessage);
   }
-
 });
 
 

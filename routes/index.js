@@ -3,7 +3,9 @@ var router = express.Router();
 
 
 const db = require("../models");
+const User = db.user;
 
+const jwt = require("jsonwebtoken");
 const Product = db.product;
 const Category = db.category;
 
@@ -11,22 +13,40 @@ const Op = db.Sequelize.Op;
 
 
 require("dotenv").config();
+const config = require("../config/auth-config");
+
 
 /* GET home page. */
 router.get('/', async (req, res, next) => {
   const transaction = await db.sequelize.transaction();
   try {
-
     const categories = await Category.findAll({
       attributes: ['id', 'name', 'image', 'slug', 'code', 'link'],
       raw: true,
       transaction
     });
-
+    console.log(req.session);
+    if(typeof req.session === 'undefined' || Object.keys(req.session).length === 0){
+      await transaction.commit(); // Commit the transaction
+       return res.render('index', { title: 'Home Page', categories});
+    }
+    const decoded = jwt.verify(req.session.token, config.secret);
+    const user = await User.findByPk(decoded.id);
+    if (!user) {
+      await transaction.commit(); // Commit the transaction
+      return res.render('index', { title: 'Home Page', categories});
+    }
+    const userRoles = await user.getRoles();
+    const userInfo = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      roles: userRoles.map(role => role.name)
+    };
     await transaction.commit(); // Commit the transaction
-
-    res.render('index', { title: 'Home Page', categories });
-  } catch (error) {
+    return res.render('index', { title: 'Home Page', categories ,userInfo:userInfo});
+  }
+   catch (error) {
     await transaction.rollback(); // Rollback the transaction on error
     next(error); // Pass the error to the next middleware
   }
