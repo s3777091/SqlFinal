@@ -15,7 +15,24 @@ const Op = db.Sequelize.Op;
 require("dotenv").config();
 const config = require("../config/auth-config");
 
+const getSortBy = (sortBy) =>{
+  if(sortBy.includes("asc")){
+    return "ASC"
+  }
+  else if (sortBy.includes("desc")){
+    return "DESC"
+  }
+  else {
+    return "ASC"
+  }
+}
 
+const getSortKey = (sortBy) =>{
+  if(sortBy.includes("price")){
+    return "cost"
+  }
+  return "prName"
+}
 /* GET home page. */
 router.get('/', async (req, res, next) => {
   const transaction = await db.sequelize.transaction();
@@ -25,7 +42,6 @@ router.get('/', async (req, res, next) => {
       raw: true,
       transaction
     });
-    console.log(req.session);
     if(typeof req.session === 'undefined' || Object.keys(req.session).length === 0){
       await transaction.commit(); // Commit the transaction
        return res.render('index', { title: 'Home Page', categories});
@@ -53,19 +69,19 @@ router.get('/', async (req, res, next) => {
 });
 
 router.get('/filter', async (req, res, next) => {
-
   const transaction = await db.sequelize.transaction();
   try {
     const categoryId = req.query.categoryId;
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 12;
+    const limit = parseInt(req.query.limit) || 6;
+    const searchTerm = req.query.search || "";
+    const sortBy = req.query.sortBy || "";
     const offset = (page - 1) * limit;
-
+    console.log(page)
     if (!categoryId) {
       await transaction.rollback();
       return res.status(400).send({ message: "In-valid category ID." });
     }
-
     const category = await Category.findOne({
       where: {
         id: categoryId,
@@ -74,26 +90,52 @@ router.get('/filter', async (req, res, next) => {
       raw: true,
       transaction
     });
-
     if (!category) {
       await transaction.rollback();
       return res.status(404).send({ message: "Category not found." });
     }
-
-    const products = await Product.findAll({
-      where: {
-        categoryId: category.id
-      },
-      attributes: ['id', 'prName', 'prId', 'prLink', 'image', 'cost'],
-      raw: true,
-      offset: parseInt(offset),
-      limit: limit,
-      transaction
-    });
-
+    var products = [];
+    if(searchTerm){
+      products = await Product.findAndCountAll({
+        where: {
+          [Op.or]: [
+            { prName: { [Op.like]: `%${searchTerm}%`} },
+          ],
+          categoryId: category.id,
+        },
+        attributes: ['id', 'prName', 'prId', 'prLink', 'image', 'cost'],
+        raw: true,
+        offset: parseInt(offset),
+        limit: limit,
+        order: [
+          [getSortKey(sortBy), getSortBy(sortBy)],
+      ],
+        transaction
+      });
+    }
+    else{
+      products = await Product.findAndCountAll({
+        where: {
+          categoryId: category.id,
+        },
+        attributes: ['id', 'prName', 'prId', 'prLink', 'image', 'cost'],
+        raw: true,
+        offset: parseInt(offset),
+        limit: limit,
+        order: [
+          [getSortKey(sortBy), getSortBy(sortBy)],
+      ],
+        transaction
+      });
+    }
+    console.log(products)
+    console.log(offset)
+    console.log(limit)
+    var totalPage = Math.ceil(products.count / limit);
     const categoryWithProducts = {
       category_info: category,
-      products: products
+      products: products,
+      totalPage:totalPage
     };
 
     await transaction.commit();
@@ -109,11 +151,10 @@ router.post("/search", async (req, res, next) => {
     const searchTerm = req.body.search;
     const page = req.query.page || 1;
     const pageSize = 10;
-
     const products = await Product.findAndCountAll({
       where: {
         [Op.or]: [
-          { prName: { [Op.like]: `%${searchTerm}%` } },
+          { prName: { [Op.like]: "Beef" } },
         ],
       },
       // Implement pagination using offset and limit
@@ -128,7 +169,6 @@ router.post("/search", async (req, res, next) => {
       // Order by Full-Text Search score
       order: [[db.sequelize.literal("score"), "DESC"]],
     });
-
     res.status(200).json(products);
   } catch (error) {
     res.status(500).send({ message: error.message });

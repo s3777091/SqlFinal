@@ -67,10 +67,11 @@
     </div>
 </header>
 <script>
-    const baseURL = "http://localhost:7001/users" 
+    const baseURL = "http://localhost:7001" 
     const signOutBtn = document.getElementById("sign-out-btn");
+    if(signOutBtn !== null){
     signOutBtn.addEventListener('click',async (e) =>{
-        let response = await fetchData(baseURL + "/sign_out","GET")
+        let response = await fetchData(baseURL + "/users/sign_out","GET")
         if(response.status === 200){
             response.json().then((data) => {
                 window.alert(data);
@@ -78,7 +79,7 @@
             window.location.href = "/"
         }
     })
-
+    }
     async function fetchData(url = "",method, data = {}) {
                 // Default options are marked with *
                 const response = await fetch(url, {
