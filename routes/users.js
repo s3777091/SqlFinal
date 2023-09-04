@@ -51,6 +51,7 @@ router.get('/information', async function (req, res, next) {
     return res.status(200).send({
       id: user.id,
       username: user.username,
+      location: user.location,
       email: user.email,
       roles: userRoles.map(role => role.name)
     });
