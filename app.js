@@ -17,6 +17,7 @@ var CartsRouter = require('./routes/payment');
 var adminRouter = require('./routes/admin');
 var sellerRouter = require('./routes/seller');
 
+var ShopRouter = require('./routes/shop');
 var ProductRouter = require('./routes/product');
 
 var app = express();
@@ -60,6 +61,7 @@ app.use(
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/carts', CartsRouter);
+app.use('/shop', ShopRouter);
 app.use('/product', ProductRouter);
 app.use('/admin',adminRouter);
 app.use('/seller',sellerRouter);
