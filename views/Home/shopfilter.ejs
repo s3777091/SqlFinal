@@ -65,6 +65,7 @@
             </div>
             <div class="filter-wrapper">
                 <select name="filter" id="filter" onchange="filterSelect()">
+                    <option selected hidden label = "Filter">
                     <option value="asc">A-Z</option>
                     <option value="desc">Z-A</option>
                     <option value="price-asc">Price ascending</option>
@@ -241,16 +242,16 @@
     var sortBy = urlParams.get("sortBy") ? urlParams.get("sortBy") : "" ;
     const getFilterIndex = (sortBy) => {
         if (sortBy == "asc"){
-            return 0
-        }
-        else if (sortBy == "desc"){
             return 1
         }
-        else if (sortBy == "price-asc"){
+        else if (sortBy == "desc"){
             return 2
         }
-        else if (sortBy == "price-desc"){
+        else if (sortBy == "price-asc"){
             return 3
+        }
+        else if (sortBy == "price-desc"){
+            return 4
         }
         else return 0
     }
