@@ -68,8 +68,6 @@
 
     getUserInformation();
 
-    let tasLocation;
-
     async function getUserInformation() {
         let response = await fetch(`${domain}/users/information`, {
             method: "GET",
@@ -83,17 +81,17 @@
         const data = await response.json();
 
         const crLocation = document.querySelector("#locationInput");
-        tasLocation = data.location;
+        const tasLocation = data.location;
 
         if (data.location === null) {
             document.querySelector("#message").innerHTML = 'Current location is null. Please update.';
             crLocation.placeholder = 'Pls update location here';
+
         } else {
-            document.querySelector("#message").innerHTML = `Current location is ${tasLocation} you want to change ?`;
+            document.querySelector("#message").innerHTML = `Current location is ${tasLocation} you want to change ?\n If don't want change enter no`;
             crLocation.placeholder = 'Enter new location';
         }
     }
-
 
 
     async function getCartsData() {
@@ -170,7 +168,7 @@
         const locationInput = document.getElementById("locationInput");
 
         if (locationInput.value === '') {
-            alert('Current location is null. Please update.');
+            alert('Current location is empty. Please update.');
         } else {
             await payment(locationInput.value, true);
         }
@@ -179,7 +177,6 @@
     document.querySelector("#decline_btn").addEventListener("click", async () => {
         await payment(locationInput.value, false);
     });
-
 
     async function payment(lo, active) {
 
@@ -201,7 +198,7 @@
 
                 const mes = await response.json();
 
-                
+
 
                 if (response.status === 500) {
                     alert(mes.message);

@@ -108,10 +108,8 @@ BEGIN
 
     -- Update the cart status and deliveryTo
     UPDATE carts SET status = 'success', deliveryTo = IFNULL(locationChangeIN, deliveryTo) WHERE id = cartId;
-
     -- Deduct the payment amount from the user's balance
-    UPDATE users SET amount = amount - totalBill WHERE id = userIdIn;
-
+    UPDATE users SET amount = amount - totalBill, location = IFNULL(locationChangeIN, location) WHERE id = userIdIn;
     -- Update quality statuses
     UPDATE qualities SET status = 'success' WHERE cartId = cartId AND status = 'on-going';
 
@@ -178,6 +176,7 @@ BEGIN
 END //
 
 DELIMITER ;
+
 
 COMMIT;
 
