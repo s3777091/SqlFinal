@@ -83,27 +83,6 @@
                         </div>
                         <div class="categories__accordion">
                             <div class="accordion" id="accordionExample">
-                                <div class="card">
-                                    <div class="category" >Thời trang nữ</div>
-                                </div>
-                                <div class="card">
-                                    <div class="category">Thời trang nam</div>
-                                </div>
-                                <div class="card">
-                                    <div class="category">Đồ Chơi - Mẹ & Bé</div>
-                                </div>
-                                <div class="card">
-                                    <div class="category">Làm Đẹp - Sức Khỏe</div>
-                                </div>
-                                <div class="card">
-                                    <div class="category">Phụ kiện thời trang</div>
-                                </div>
-                                <div class="card">
-                                    <div class="category">Laptop - Máy Vi Tính - Linh kiện</div>
-                                </div>
-                                <div class="card">
-                                    <div class="category">Điện Thoại - Máy Tính Bảng</div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -232,13 +211,13 @@
     </div>
 </section>
 <script>
-    const categories = Array.from(document.getElementsByClassName('category'))
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const searchBtn= document.getElementById("search-button")
+    const categoryWrapper = document.getElementById("accordionExample");
     var searchTerm = urlParams.get("search") ? urlParams.get("search") : ""; 
     var pageNum = urlParams.get("page") ? urlParams.get("page") : 1 ;
-    var currentCategory = urlParams.get("category") ? urlParams.get("category") : "Thời trang nữ";
+    var currentCategory = urlParams.get("category") ? decodeURIComponent(urlParams.get("category")) : "Thời trang nữ";
     var sortBy = urlParams.get("sortBy") ? urlParams.get("sortBy") : "" ;
     const getFilterIndex = (sortBy) => {
         if (sortBy == "asc"){
@@ -287,23 +266,8 @@
         searchTerm = document.getElementById('search-input').value;
         window.location.href = '/shop?page='+pageNum+"&category="+currentCategory+"&search="+searchTerm;
     })
-    categories.forEach(category => {
-        category.addEventListener('click', async (e) => {
-            currentCategory = e.target.innerHTML;
-            // console.log(currentCategory)
-            pageNum = 1;
-            // fetchProducts(baseURL + "/filter?categoryId=" + getCategoryId(currentCategory)+"&page="+1 + "&category="+currentCategory);
-            window.location.href = '/shop?page='+pageNum+"&category="+currentCategory;
-            // window.history.pushState( "/shop?page=1");
-        });
-    });
-    fetchProducts(baseURL + "/filter?categoryId=" + getCategoryId(currentCategory)+"&page="+pageNum + "&search="+searchTerm+"&sortBy="+sortBy);
+    fetchProducts(baseURL + "/shop/products?category=" + encodeURIComponent(currentCategory)+"&page="+pageNum + "&search="+searchTerm+"&sortBy="+sortBy);
     async function fetchProducts(url = "") {
-                for (var i = 0; i < categories.length ; i++){
-                    if(categories[i].innerHTML.includes(currentCategory)){
-                        categories[i].classList.add("category-active");
-                    }
-                }
                 document.getElementById("filter")[getFilterIndex(sortBy)].setAttribute('selected','selected');
                 // Default options are marked with *
                 const response = await fetch(url, {
@@ -320,10 +284,31 @@
                 });
                 if(response.status == 200){
                     response.json().then((data) => {
+                        console.log(data.categories)
                         var productList = document.getElementById("product-list");
                         const pagination = document.getElementById("pagination-wrapper");
                         pagination.innerHTML = ""
                         productList.innerHTML = ""
+                        for(var i = 0; i < data.categories.length; i++){
+                            categoryWrapper.innerHTML += `
+                                <div class="card">
+                                    <div class="category" >${data.categories[i].name}</div>
+                                </div>
+                                `
+                        }
+                        const categories = Array.from(document.getElementsByClassName('category'))
+                        for (var i = 0; i < categories.length ; i++){
+                            if(currentCategory.includes(categories[i].innerHTML.replace("&amp;","&"))){
+                                categories[i].classList.add("category-active");
+                            }
+                        }
+                        categories.forEach(category => {
+                        category.addEventListener('click', async (e) => {
+                            currentCategory = e.target.innerHTML.replace("&amp;",encodeURIComponent("&"))
+                            pageNum = 1;
+                            window.location.href = '/shop?page='+pageNum+"&category="+currentCategory;
+                            });
+                        });
                         for (var i = 1 ; i <= data.totalPage; i++){
                             if(i == pageNum){
                                 pagination.innerHTML += `
