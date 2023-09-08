@@ -48,7 +48,7 @@ router.get('/products', async (req, res, next) => {
       });
       const category = await Category.findOne({
         where: {
-          name: categoryName,
+          name: categoryName ? categoryName : "",
         },
         attributes: ['id', 'name', 'image', 'slug', 'code', 'link'],
         raw: true,
@@ -112,30 +112,42 @@ router.get('/products', async (req, res, next) => {
     try {
       const searchTerm = req.body.search;
       const page = req.query.page || 1;
-      const pageSize = 10;
+      const limit = parseInt(req.query.limit) || 6;
+      const sortBy = req.query.sortBy || "";
+      console.log(searchTerm)
+
+      const categories = await Category.findAll({
+        attributes: ['id', 'name', 'image', 'slug', 'code', 'link'],
+        raw: true
+      });
       const products = await Product.findAndCountAll({
         where: {
           [Op.or]: [
-            { prName: { [Op.like]: "Beef" } },
+            { prName: { [Op.like]: `${searchTerm}%` } },
           ],
         },
         // Implement pagination using offset and limit
-        offset: (page - 1) * pageSize,
-        limit: pageSize,
+        offset: (page - 1) * limit,
+        limit: limit,
+        order: [
+            [getSortKey(sortBy), getSortBy(sortBy)],
+        ],
         // Enable Full-Text Search
-        attributes: {
-          include: [
-            [db.sequelize.literal(`MATCH(prName) AGAINST('${searchTerm}' IN BOOLEAN MODE)`), "score"]
-          ]
-        },
-        // Order by Full-Text Search score
-        order: [[db.sequelize.literal("score"), "DESC"]],
+        // attributes: {
+        //   include: [
+        //     [db.sequelize.literal(`MATCH(prName) AGAINST('${searchTerm}' IN BOOLEAN MODE)`), "score"]
+        //   ]
+        // },
+        // // Order by Full-Text Search score
+        // order: [[db.sequelize.literal("score"), "DESC"]],
       });
-      res.status(200).json(products);
+      var totalPage = Math.ceil(products.count / limit);
+      res.status(200).json({categories:categories, products:products,totalPage:totalPage});
     } catch (error) {
       res.status(500).send({ message: error.message });
     }
   });
+  
 
 
 module.exports = router;

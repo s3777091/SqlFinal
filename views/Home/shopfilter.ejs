@@ -54,6 +54,32 @@
     .filter{
         border-radius: 2px solid black;
     }
+    .counter {
+    width: 150px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    }
+    .counter input {
+        width: 50px;
+        border: 0;
+        line-height: 30px;
+        font-size: 20px;
+        text-align: center;
+        background: red;
+        color: #fff;
+        appearance: none;
+        outline: 0;
+    }
+    .counter span {
+        display: block;
+        font-size: 25px;
+        padding: 0 10px;
+        cursor: pointer;
+        color: red;
+        user-select: none;
+    }
 </style>
     <div class="container">
         <div class="wrap">
@@ -211,14 +237,23 @@
     </div>
 </section>
 <script>
+    // carts
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const searchBtn= document.getElementById("search-button")
     const categoryWrapper = document.getElementById("accordionExample");
+    const productList = document.getElementById("product-list");
+    const searchInput = document.getElementById("search-input");
     var searchTerm = urlParams.get("search") ? urlParams.get("search") : ""; 
     var pageNum = urlParams.get("page") ? urlParams.get("page") : 1 ;
     var currentCategory = urlParams.get("category") ? decodeURIComponent(urlParams.get("category")) : "Thời trang nữ";
     var sortBy = urlParams.get("sortBy") ? urlParams.get("sortBy") : "" ;
+    searchInput.addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    document.getElementById("search-button").click();
+                }
+    });
     const getFilterIndex = (sortBy) => {
         if (sortBy == "asc"){
             return 1
@@ -234,58 +269,44 @@
         }
         else return 0
     }
-    const getCategoryId = (category) =>{
-        if(category == "Thời trang nữ"){
-            return 1;
-        }
-        else if (category == "Thời trang nam") {
-            return 2;
-        }
-        else if (category == "Làm Đẹp - Sức Khỏe") {
-            return 4;
-        }
-        else if (category == "Phụ kiện thời trang") {
-            return 5;
-        }
-        else if (category == "Laptop - Máy Vi Tính - Linh kiện") {
-            return 6;
-        }
-        else if (category == "Điện Thoại - Máy Tính Bảng") {
-            return 7;
-        }
-        else {
-            return 3;
-        }
-    }
     const filterSelect = () =>{
         sortBy = document.getElementById("filter").value;
-        window.location.href = '/shop?page='+pageNum+"&category="+currentCategory+"&search="+searchTerm+"&sortBy="+sortBy;
+        pageNum = 1;
+        window.location.href = '/shop?page='+pageNum+"&category="+encodeURIComponent(currentCategory)+"&search="+searchTerm+"&sortBy="+sortBy;
     }
     searchBtn.addEventListener('click', (e) =>{
-        // console.log("hello")
         searchTerm = document.getElementById('search-input').value;
-        window.location.href = '/shop?page='+pageNum+"&category="+currentCategory+"&search="+searchTerm;
+        pageNum = 1;
+        window.location.href = '/shop?page='+pageNum+"&search="+searchTerm;
     })
-    fetchProducts(baseURL + "/shop/products?category=" + encodeURIComponent(currentCategory)+"&page="+pageNum + "&search="+searchTerm+"&sortBy="+sortBy);
-    async function fetchProducts(url = "") {
+    fetchProducts(baseURL);
+    async function fetchProducts(url = "",body) {
                 document.getElementById("filter")[getFilterIndex(sortBy)].setAttribute('selected','selected');
                 // Default options are marked with *
-                const response = await fetch(url, {
-                    method: "GET", // *GET, POST, PUT, DELETE, etc.
-                    mode: "cors", // no-cors, *cors, same-origin
-                    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-                    credentials: "same-origin", // include, *same-origin, omit
+                var response;
+                if(searchTerm){
+                    var searchBody = {
+                        "search":searchTerm
+                    }
+                    response = await fetch(url+ "/shop/search?page="+pageNum+"&sortBy="+sortBy, {
+                    method: "POST", // *GET, POST, PUT, DELETE, etc.
                     headers: {
                         "Content-Type": "application/json",
                         // 'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    redirect: "follow", // manual, *follow, error
-                    referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                    body:JSON.stringify(searchBody)
                 });
+                }
+                else {
+                    response = await fetch(url + "/shop/products?category="+ encodeURIComponent(currentCategory)+"&page="+pageNum + "&search="+searchTerm+"&sortBy="+sortBy, {
+                        method: "GET", // *GET, POST, PUT, DELETE, etc.
+                        headers: {
+                            "Content-Type": "application/json",
+                        }
+                    });
+                }
                 if(response.status == 200){
                     response.json().then((data) => {
-                        console.log(data.categories)
-                        var productList = document.getElementById("product-list");
                         const pagination = document.getElementById("pagination-wrapper");
                         pagination.innerHTML = ""
                         productList.innerHTML = ""
@@ -298,7 +319,7 @@
                         }
                         const categories = Array.from(document.getElementsByClassName('category'))
                         for (var i = 0; i < categories.length ; i++){
-                            if(currentCategory.includes(categories[i].innerHTML.replace("&amp;","&"))){
+                            if(currentCategory.includes(categories[i].innerHTML.replace("&amp;","&"))&& !searchTerm){
                                 categories[i].classList.add("category-active");
                             }
                         }
@@ -325,10 +346,12 @@
                         Array.from(paginationNums).forEach(pageNumber => {
                             pageNumber.addEventListener('click',async (e) =>{
                                 pageNum = e.target.innerHTML
-                                console.log(pageNum)
-                                var url = '/shop?page='+pageNum+"&category="+currentCategory
+                                var url = '/shop?page='+pageNum
                                 if(searchTerm && searchTerm.length > 0){
                                     url += "&search="+searchTerm;
+                                }
+                                else{
+                                    url+="&category="+encodeURIComponent(currentCategory);
                                 }
                                 if(sortBy && sortBy.length > 0){
                                     url += "&sortBy="+sortBy;
@@ -338,30 +361,81 @@
                         })
                         data.products.rows.forEach(product => {
                             productList.innerHTML += `
-                            <div class="col-lg-4 col-md-6">
+                        <div class="col-lg-4 col-md-6">
                             <div class="product__item sale">
                                 <div class="product__item__pic set-bg" >
                                     <img src = ${product.image}/>
                                     <ul class="product__hover">
-                                        <li><a style ="cursor:pointer"><span class="icon_bag_alt"></span></a></li>
+                                        <li class="add-to-cart-btn" ><a style ="cursor:pointer"><span class="icon_bag_alt"></span></a></li>
                                     </ul>
                                 </div>
                                 <div class="product__item__text">
-                                    <h6><a href="#">${product.prName}</a></h6>
-                                    <div class="rating">
+                                    <h6><a href="#" class = "product-name" >${product.prName}</a></h6>
+                                    <h6 class="product-id" style = "display:none"> ${product.id}</h6>
+                                </div>
+                                <div class="rating">
                                         <i class="fa fa-star"></i>
                                         <i class="fa fa-star"></i>
                                         <i class="fa fa-star"></i>
                                         <i class="fa fa-star"></i>
                                         <i class="fa fa-star"></i>
                                     </div>
-                                    <div class="product__price">$ ${product.cost} <span>$ ${product.cost}</span></div>
-                                </div>
+                                <div class="product__price">$${product.cost}</span></div>
+                            </div>
+                            <div class="counter">
+                                <span class="down" onClick='decreaseCount(event, this)'>-</span>
+                                <input type="text" class="counter-input" value="1">
+                                <span class="up"  onClick='increaseCount(event, this)'>+</span>
                             </div>
                         </div>
                             ` 
                         });
+                        const addToCartBtn = document.getElementsByClassName("add-to-cart-btn");
+                        Array.from(addToCartBtn).forEach((btn,index) =>{
+                            btn.addEventListener('click',(e) =>{
+                                var productId = document.getElementsByClassName("product-id")[index].innerHTML
+                                var quantity = document.getElementsByClassName("counter-input")[index].value
+                                var option = "test";
+                                addToCart(productId,quantity,option)
+                            })
+                        })
                     })
             }
     }
+    function increaseCount(a, b) {
+        var input = b.previousElementSibling;
+        var value = parseInt(input.value, 10); 
+        value = isNaN(value)? 0 : value;
+        value ++;
+        input.value = value;
+      }
+      function decreaseCount(a, b) {
+        var input = b.nextElementSibling;
+        var value = parseInt(input.value, 10); 
+        if (value > 1) {
+          value = isNaN(value)? 0 : value;
+          value --;
+          input.value = value;
+        }
+      }
+    async function addToCart(productId,quantity,option){
+        var body = {
+            idProduct:productId,
+            quality:quantity,
+            productOption:option
+        }
+        var response = await fetch(baseURL + "/carts/add?", {
+                        method: "POST", // *GET, POST, PUT, DELETE, etc.
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body:JSON.stringify(body) 
+                    });
+        if (response.status == 200){
+            response.json().then(data =>{
+                window.alert(data)
+            })
+        }
+    }
+
 </script>

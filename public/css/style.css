@@ -1169,6 +1169,8 @@ ol {
 	overflow: hidden;
 }
 
+
+
 .product__item__pic .label {
 	font-size: 12px;
 	color: #ffffff;
@@ -1274,7 +1276,11 @@ ol {
 
 .product__item__text {
 	text-align: center;
+	align-items: center;
 	padding-top: 22px;
+	min-height: 100px;
+	max-height: 100px;
+	overflow: scroll ;
 }
 
 .product__item__text h6 a {
@@ -1282,27 +1288,29 @@ ol {
 	color: #111111;
 }
 
-.product__item__text .rating {
+.rating {
+	text-align: center;
 	line-height: 18px;
 	margin-bottom: 5px;
 }
 
-.product__item__text .rating i {
+.rating i {
 	font-size: 10px;
 	color: #e3c01c;
 	margin-right: -4px;
 }
 
-.product__item__text .rating i:last-child {
+.rating i:last-child {
 	margin-right: 0;
 }
 
-.product__item__text .product__price {
-	color: #111111;
+.product__price {
+	text-align: center;
+	color: red;
 	font-weight: 600;
 }
 
-.product__item__text .product__price span {
+.product__price span {
 	font-size: 14px;
 	color: #b1b0b0;
 	text-decoration: line-through;
