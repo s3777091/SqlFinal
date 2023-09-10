@@ -4,6 +4,11 @@ const db = require("../models");
 
 const Product = db.product;
 const Category = db.category;
+const config = require("../config/auth-config");
+
+const User = db.user;
+
+const jwt = require("jsonwebtoken");
 
 const Op = db.Sequelize.Op;
 const getSortBy = (sortBy) =>{
@@ -25,7 +30,27 @@ const getSortBy = (sortBy) =>{
     return "prName"
   }
 router.get('/', async (req, res, next) => {
-    res.render('shop');
+  const transaction = await db.sequelize.transaction();
+  if(typeof req.session === 'undefined' || Object.keys(req.session).length === 0){
+    await transaction.commit(); // Commit the transaction
+     return res.render('shop');
+  }
+  const decoded = jwt.verify(req.session.token, config.secret);
+  const user = await User.findByPk(decoded.id);
+  if (!user) {
+    await transaction.commit(); // Commit the transaction
+    return res.render('shop');
+  }
+  const userRoles = await user.getRoles();
+  const userInfo = {
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    roles: userRoles.map(role => role.name)
+  };
+
+  await transaction.commit(); // Commit the transaction
+  return res.render('shop', { title: 'Shop page',userInfo:userInfo});
 });
 
 router.get('/products', async (req, res, next) => {

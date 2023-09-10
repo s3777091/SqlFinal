@@ -3,6 +3,11 @@ var router = express.Router();
 
 
 const db = require("../models");
+const config = require("../config/auth-config");
+
+const User = db.user;
+
+const jwt = require("jsonwebtoken");
 
 const Product = db.product;
 const Category = db.category;
@@ -22,10 +27,27 @@ router.get('/', async (req, res, next) => {
       raw: true,
       transaction
     });
+    if(typeof req.session === 'undefined' || Object.keys(req.session).length === 0){
+      await transaction.commit(); // Commit the transaction
+       return res.render('index', { title: 'Home Page', categories});
+    }
+    const decoded = jwt.verify(req.session.token, config.secret);
+    const user = await User.findByPk(decoded.id);
+    if (!user) {
+      await transaction.commit(); // Commit the transaction
+      return res.render('index', { title: 'Home Page', categories});
+    }
+    const userRoles = await user.getRoles();
+    const userInfo = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      roles: userRoles.map(role => role.name)
+    };
 
     await transaction.commit(); // Commit the transaction
 
-    res.render('index', { title: 'Home Page', categories });
+    return res.render('index', { title: 'Home Page', categories ,userInfo:userInfo});
   } catch (error) {
     await transaction.rollback(); // Rollback the transaction on error
     next(error); // Pass the error to the next middleware
