@@ -71,14 +71,11 @@ DELIMITER //
 
 CREATE PROCEDURE PerformPayment(
     IN locationChangeIN VARCHAR(1024),
-    IN acceptIn INT,
     IN userIdIn INT
 )
 BEGIN
-    DECLARE productID INT;
     DECLARE totalBill DECIMAL(10, 2);
     DECLARE cartId INT;
-    DECLARE qualityValue INT;
 
     -- Declare handlers for rollback
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -99,22 +96,20 @@ BEGIN
             SET MESSAGE_TEXT = 'Cart not found';
     END IF;
 
-    -- Update the cart status and deliveryTo
-    UPDATE carts SET status = 'success', deliveryTo = IFNULL(locationChangeIN, deliveryTo) WHERE id = cartId;
-
     SELECT SUM(product_cost * quality) INTO totalBill
     FROM qualities WHERE cartId = cartId AND status = 'on-going';
 
-    -- Check if the user has sufficient funds
+    -- Check if the user has sufficient funds lock this step payment
     SELECT amount INTO @userAmount FROM users WHERE id = userIdIn FOR UPDATE;
     IF @userAmount < totalBill THEN
         SIGNAL SQLSTATE '45000'
             SET MESSAGE_TEXT = 'Insufficient funds for payment';
     END IF;
 
+    -- Update the cart status and deliveryTo
+    UPDATE carts SET status = 'success', deliveryTo = IFNULL(locationChangeIN, deliveryTo) WHERE id = cartId;
     -- Deduct the payment amount from the user's balance
-    UPDATE users SET amount = amount - totalBill WHERE id = userIdIn;
-
+    UPDATE users SET amount = amount - totalBill, location = IFNULL(locationChangeIN, location) WHERE id = userIdIn;
     -- Update quality statuses
     UPDATE qualities SET status = 'success' WHERE cartId = cartId AND status = 'on-going';
 
@@ -125,16 +120,30 @@ DELIMITER ;
 
 
 DELIMITER //
+
 DROP TRIGGER IF EXISTS check_update_quality;
+
 CREATE TRIGGER check_update_quality
     BEFORE UPDATE ON qualities
     FOR EACH ROW
 BEGIN
+    DECLARE new_stock_quantity INT;
+
     IF NEW.status = 'success' THEN
-        UPDATE products SET amount = amount - NEW.quality WHERE id = NEW.productID;
+        -- Calculate the new stock quantity after the update
+        SET new_stock_quantity = (SELECT amount - NEW.quality FROM products WHERE id = NEW.productID);
+
+        IF new_stock_quantity >= 0 THEN
+            UPDATE products SET amount = new_stock_quantity WHERE id = NEW.productID;
+        ELSE
+            SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Out of Stock';
+        END IF;
     END IF;
 END //
+
 DELIMITER ;
+
 
 DELIMITER //
 
@@ -167,6 +176,7 @@ BEGIN
 END //
 
 DELIMITER ;
+
 
 COMMIT;
 

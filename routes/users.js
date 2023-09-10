@@ -1,5 +1,8 @@
 var express = require('express');
 var router = express.Router();
+const { authJwt } = require("../Middleware");
+
+const { verifySignUp } = require("../Middleware");
 
 
 const db = require("../models");
@@ -32,7 +35,7 @@ router.get('/sign_out', async function (req, res, next) {
 });
 
 
-router.get('/information', async function (req, res, next) {
+router.get('/information', authJwt.verifyToken, async function (req, res, next) {
   try {
     console.log(req.session);
     const decoded = jwt.verify(req.session.token, config.secret);
@@ -47,6 +50,7 @@ router.get('/information', async function (req, res, next) {
     return res.status(200).send({
       id: user.id,
       username: user.username,
+      location: user.location,
       email: user.email,
       roles: userRoles.map(role => role.name)
     });
@@ -118,23 +122,40 @@ router.post("/sign_in", async (req, res, next) => {
 
 //Sign Up
 
-router.post("/sign_up", async (req, res, next) => {
+router.post("/sign_up", [verifySignUp.checkDuplicateUsernameOrEmail, verifySignUp.checkRolesExisted], async (req, res, next) => {
 
-  let errorMessage = ''; // Define the errorMessage variable
+  let errorMessage = '';
 
   const transaction = await db.sequelize.transaction();
   try {
-    const user1 = await db.user.findOne({
-      where: { email: req.body.email },
-    })
-    if(user1){
-      return res.status(400).json("User already exist");
+
+    const userValue = req.body.username;
+    const emailValue = req.body.email;
+    const passwordValue = req.body.password;
+
+    if (userValue === null || userValue.length === 0) {
+      return res.status(403).send({
+        message: "Current user name must have a value",
+      });
     }
+
+    if (!emailValue.includes('@')) {
+      return res.status(404).send({
+        message: "Current input email",
+      });
+    }
+
+    if (passwordValue.length < 8 || passwordValue.length > 22) {
+      return res.status(405).send({
+        message: "Current password need from 8 to 22",
+      });
+    }
+
     const user = await db.user.create({
-      username: req.body.username,
-      email: req.body.email,
+      username: userValue,
+      email: emailValue,
       amount: '99999999999', //Test Money
-      password: bcrypt.hashSync(req.body.password, 8),
+      password: bcrypt.hashSync(passwordValue, 8),
     }, { transaction });
     const rolesToSet = req.body.roles ? req.body.roles : [1];
     console.log(rolesToSet)

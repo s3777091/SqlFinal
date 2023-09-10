@@ -19,8 +19,14 @@ function calculateTotalBill(qualities) {
     }, 0);
 }
 
-router.get('/', async (req, res, next) => {
+router.get('/', authJwt.verifyToken, async (req, res, next) => {
     res.render('cart/shopcart', { title: 'Cart Page' });
+});
+
+router.get('/thanks', async (req, res, next) => {
+    const decoded = jwt.verify(req.session.token, config.secret);
+    const user = await User.findByPk(decoded.id);
+    res.render('thanks', { user });
 });
 
 
@@ -46,6 +52,36 @@ router.post("/add", authJwt.verifyToken, async (req, res, next) => {
         return res.status(500).send({ message: error.message });
     }
 
+});
+
+
+router.post("/payment", authJwt.verifyToken, async (req, res, next) => {
+    try {
+        const locationChange = req.body.location;
+        const active = req.body.active;
+
+        const decoded = jwt.verify(req.session.token, config.secret);
+        const user = await User.findByPk(decoded.id);
+
+        if (!user) {
+            return res.status(401).send({
+                message: "Need Login to perform this action.",
+            });
+        }
+
+        if (active) {
+            await db.sequelize.query('CALL PerformPayment(?, ?)',
+                { replacements: [locationChange, user.id] }
+            );
+            return res.status(200).send({ message: 'Success payment our product' });
+        } else {
+            return res.status(402).send({ message: 'cancel payment product' });
+
+        }
+
+    } catch (error) {
+        return res.status(500).send({ message: error.message });
+    }
 });
 
 
