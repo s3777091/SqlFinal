@@ -29,6 +29,7 @@
         color: #9DBFAF;
     }
 
+
     .searchTerm:focus{
         color: black;
     }
@@ -80,11 +81,24 @@
         color: red;
         user-select: none;
     }
+    #filter-search{
+        border: 3px solid black;
+        border-right: none;
+        padding: 5px;
+        outline: none;
+        color: black;
+    }
 </style>
     <div class="container">
         <div class="wrap">
             <div class="search">
                 <input type="text" class="searchTerm" id = "search-input" placeholder="What are you looking for?">
+                <div class="filter-search-wrapper">
+                    <select name="filter-search" id="filter-search">
+                        <option value="Search pagination">Search pagination</option>
+                        <option value="Search all">Search all</option>
+                    </select>
+                </div>
                 <button class="searchButton" id ="search-button">
                     <i class="fa fa-search"></i>
                 </button>
@@ -244,10 +258,12 @@
     const categoryWrapper = document.getElementById("accordionExample");
     const productList = document.getElementById("product-list");
     const searchInput = document.getElementById("search-input");
+    var filterSearchValue = document.getElementById("filter-search").value;
     var searchTerm = urlParams.get("search") ? urlParams.get("search") : ""; 
     var pageNum = urlParams.get("page") ? urlParams.get("page") : 1 ;
     var currentCategory = urlParams.get("category") ? decodeURIComponent(urlParams.get("category")) : "Thời trang nữ";
     var sortBy = urlParams.get("sortBy") ? urlParams.get("sortBy") : "" ;
+    var filterSearch = urlParams.get("filterSearch") ? urlParams.get("filterSearch") : "" ;
     searchInput.addEventListener("keypress", function(event) {
                 if (event.key === "Enter") {
                     event.preventDefault();
@@ -269,22 +285,66 @@
         }
         else return 0
     }
+    const getFilterSearchIndex = (filterSearch) => {
+        console.log(filterSearch)
+        if (filterSearch == "Search all"){
+            return 1
+        }
+        else if (filterSearch == "Search pagination"){
+            return 0
+        }
+        else {
+            return 0
+        }
+    }
     const filterSelect = () =>{
         sortBy = document.getElementById("filter").value;
         pageNum = 1;
-        window.location.href = '/shop?page='+pageNum+"&category="+encodeURIComponent(currentCategory)+"&search="+searchTerm+"&sortBy="+sortBy;
+        var filterSearchValue = document.getElementById("filter-search").value;
+        if(filterSearch === "Search all"){
+            window.location.href = '/shop?&search='+searchTerm+"&filterSearch="+filterSearchValue+"&sortBy="+sortBy;
+        }
+        else{
+            window.location.href = '/shop?page='+pageNum+"&category="+encodeURIComponent(currentCategory)+"&search="+searchTerm+"&sortBy="+sortBy;
+        }
     }
+    // const filterSearchSelect = () =>{
+    //     var filterSearchValue = document.getElementById("filter-search").value;
+    //     document.getElementById("filter-search")[getFilterSearchIndex(filterSearchValue)].setAttribute('selected','selected');
+    //     window.location.href = '/shop?&search='+searchTerm+"filterSearch=" +filterSearchValue;
+    // }
     searchBtn.addEventListener('click', (e) =>{
+        var filterSearchValue = document.getElementById("filter-search").value;
         searchTerm = document.getElementById('search-input').value;
+        document.getElementById("filter-search")[getFilterSearchIndex(filterSearch)].setAttribute('selected','selected');
         pageNum = 1;
-        window.location.href = '/shop?page='+pageNum+"&search="+searchTerm;
+        if(filterSearchValue === "Search all"){
+            window.location.href = '/shop?&search='+searchTerm+"&filterSearch="+filterSearchValue;
+        }
+        else{
+            window.location.href = '/shop?page='+pageNum+"&search="+searchTerm;
+        }
     })
     fetchProducts(baseURL);
     async function fetchProducts(url = "",body) {
+                document.getElementById("filter-search")[getFilterSearchIndex(filterSearch)].setAttribute('selected','selected');
                 document.getElementById("filter")[getFilterIndex(sortBy)].setAttribute('selected','selected');
                 // Default options are marked with *
                 var response;
-                if(searchTerm){
+                if(filterSearch){
+                    var searchBody = {
+                        "search":searchTerm
+                    }
+                    response = await fetch(url+ "/shop/searchAll?"+"sortBy="+sortBy, {
+                    method: "POST", // *GET, POST, PUT, DELETE, etc.
+                    headers: {
+                        "Content-Type": "application/json",
+                        // 'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body:JSON.stringify(searchBody)
+                });
+                }
+                else if(searchTerm){
                     var searchBody = {
                         "search":searchTerm
                     }
@@ -330,35 +390,37 @@
                             window.location.href = '/shop?page='+pageNum+"&category="+currentCategory;
                             });
                         });
-                        for (var i = 1 ; i <= data.totalPage; i++){
-                            if(i == pageNum){
-                                pagination.innerHTML += `
-                                <a class = "paginationNum active">${i}</a>
-                                `
-                            }
-                            else{
-                                pagination.innerHTML += `
-                                <a class = "paginationNum">${i}</a>
-                                `
-                            }
-                        }
-                        const paginationNums = document.getElementsByClassName("paginationNum");
-                        Array.from(paginationNums).forEach(pageNumber => {
-                            pageNumber.addEventListener('click',async (e) =>{
-                                pageNum = e.target.innerHTML
-                                var url = '/shop?page='+pageNum
-                                if(searchTerm && searchTerm.length > 0){
-                                    url += "&search="+searchTerm;
+                        if(!filterSearch){
+                            for (var i = 1 ; i <= data.totalPage; i++){
+                                if(i == pageNum){
+                                    pagination.innerHTML += `
+                                    <a class = "paginationNum active">${i}</a>
+                                    `
                                 }
                                 else{
-                                    url+="&category="+encodeURIComponent(currentCategory);
+                                    pagination.innerHTML += `
+                                    <a class = "paginationNum">${i}</a>
+                                    `
                                 }
-                                if(sortBy && sortBy.length > 0){
-                                    url += "&sortBy="+sortBy;
-                                }
-                                window.location.href = url;
+                            }
+                            const paginationNums = document.getElementsByClassName("paginationNum");
+                            Array.from(paginationNums).forEach(pageNumber => {
+                                pageNumber.addEventListener('click',async (e) =>{
+                                    pageNum = e.target.innerHTML
+                                    var url = '/shop?page='+pageNum
+                                    if(searchTerm && searchTerm.length > 0){
+                                        url += "&search="+searchTerm;
+                                    }
+                                    else{
+                                        url+="&category="+encodeURIComponent(currentCategory);
+                                    }
+                                    if(sortBy && sortBy.length > 0){
+                                        url += "&sortBy="+sortBy;
+                                    }
+                                    window.location.href = url;
+                                })
                             })
-                        })
+                        }
                         data.products.rows.forEach(product => {
                             productList.innerHTML += `
                         <div class="col-lg-4 col-md-6">

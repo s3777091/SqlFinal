@@ -148,6 +148,37 @@ router.get('/products', async (req, res, next) => {
     }
   });
   
-
+  router.post("/searchAll", async (req, res, next) => {
+    try {
+      const searchTerm = req.body.search;
+      const sortBy = req.query.sortBy || "";
+      const categories = await Category.findAll({
+        attributes: ['id', 'name', 'image', 'slug', 'code', 'link'],
+        raw: true
+      });
+      const products = await Product.findAndCountAll({
+        where: {
+          [Op.or]: [
+            { prName: { [Op.like]: `${searchTerm}%` } },
+          ],
+        },
+        // Implement pagination using offset and limit
+        order: [
+            [getSortKey(sortBy), getSortBy(sortBy)],
+        ],
+        // Enable Full-Text Search
+        // attributes: {
+        //   include: [
+        //     [db.sequelize.literal(`MATCH(prName) AGAINST('${searchTerm}' IN BOOLEAN MODE)`), "score"]
+        //   ]
+        // },
+        // // Order by Full-Text Search score
+        // order: [[db.sequelize.literal("score"), "DESC"]],
+      });
+      res.status(200).json({categories:categories, products:products});
+    } catch (error) {
+      res.status(500).send({ message: error.message });
+    }
+  });
 
 module.exports = router;
