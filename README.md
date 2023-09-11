@@ -44,7 +44,7 @@ To Start project
 Nguyen Xuan Huy - 4
 Nguyen Thi Ha Thu - 5
 Nguyen Duc Dung - 5
-Huynh Dac Tan Dat
+Huynh Dac Tan Dat - 5
 
 ## Demo link
 https://rmit-arc.instructuremedia.com/embed/0d062106-63ca-4d40-b170-0ac07cc238bf 
