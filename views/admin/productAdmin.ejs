@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css" integrity="sha512-NmLkDIU1C/C88wi324HBc+S2kLhi08PN5GDeUVVVC/BVt/9Izdsc9SVeVfA1UZbY3sHUlDSyRXhCzHfr6hmPPw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="/css/admin.css">
+    <title>Document</title>
+</head>
+<body>
+    <%- include("./sidebar.ejs") %>
+    <main class="app">
+        <%- include("./topbar.ejs") %>
+        <div class="product">
+            <h1 class="product__header">Product Management</h1>
+            <div class="product__add">
+                <h3 class="product__add-header">Add a new product</h3>
+                <div class="grid-4 mt-2">
+                    <div class="product__add-field">
+                        <input type="text" class="product__add-input" id="pr-add-name" placeholder="Product Name">
+                    </div>
+                    <div class="product__add-field">
+                        <input type="text" class="product__add-input" id="pr-add-id" placeholder="Product ID">
+                    </div>
+                    <div class="product__add-field">
+                        <input type="text" class="product__add-input" id="pr-add-cost" placeholder="Cost">
+                    </div>
+                    <div class="product__add-field">
+                        <input type="text" class="product__add-input" id="pr-add-link" placeholder="Product Link">
+                    </div>
+                    <div class="product__add-field">
+                        <input type="text" class="product__add-input" id="pr-add-img" placeholder="Product Image">
+                    </div>
+                    <div class="product__add-field">
+                        <input type="text" class="product__add-input" id="pr-add-brand" placeholder="Brand">
+                    </div>
+                    <div class="product__add-field">
+                        <input type="text" class="product__add-input" id="pr-add-space" placeholder="Space">
+                    </div>
+                    <div class="product__add-field">
+                        <input type="text" class="product__add-input" id="pr-add-amount" placeholder="Amount">
+                    </div>
+                    <div class="product__add-field">
+                        <input type="text" class="product__add-input" id="pr-add-category" placeholder="Category ID">
+                    </div>
+                    <div class="product__add-field">
+                        <input type="text" class="product__add-input" id="pr-add-wh" placeholder="Warehouse ID">
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <button class="product__add-submit" id="pr-add-submit">Add new product</button>
+                </div>
+            </div>
+            <div class="product__add">
+                <h3 class="product__add-header">Manage product</h3>
+                <div class="mt-2 product__search">
+                    <input type="text" class="product__search-box" placeholder="Search product (name)">
+                    <div class="product__search-icon-container">
+                        <span class="material-symbols-outlined product__search-icon">search</span>
+                    </div>
+                </div>
+                <div class="product__result"></div>
+            </div>
+        </div>
+    </main>
+    <script>
+        const $ = document.querySelector.bind(document);
+        const $$ = document.querySelectorAll.bind(document);
+
+        const addProductBtn = $("#pr-add-submit")
+
+        addProductBtn.onclick = async () => {
+            const { status } = await POST('/admin/create_product', {
+                prName: $("#pr-add-name").value,
+                prId: $("#pr-add-id").value,
+                cost: $("#pr-add-cost").value,
+                prLink: $("#pr-add-link").value,
+                image: $("#pr-add-img").value,
+                brand: $("#pr-add-brand").value,
+                space: $("#pr-add-space").value,
+                amount: $("#pr-add-amount").value,
+                categoryId: $("#pr-add-category").value,
+                warehouseId: $("#pr-add-wh").value
+            })
+            if (status === 200){
+                window.alert("Product added successfully!")
+            }
+            else {
+                window.alert("Something went wrong, please try again!")
+            }
+        }
+
+        const searchBtn = $(".product__search-icon-container")
+
+        searchBtn.onclick = async () => {
+            const response = await fetcher(`/admin/search_product/${$(".product__search-box").value}`, "GET")
+            if (response.status === 200){
+                response.json().then((data) => {
+                    if (data.products.length === 0){
+                        $(".product__result").innerHTML = `
+                            <p class="product__result-name">No result found</p>
+                        `
+                    }
+                    $(".product__result").innerHTML = `
+                        ${data.products.map((item) => {
+                            return `
+                                <a href="/admin/product/edit?id=${item.id}" class="product__result-item">
+                                    <img class="product__result-img" src="${item.image}" alt="https://nayemdevs.com/wp-content/uploads/2020/03/default-product-image.png">
+                                    <div class="">
+                                        <p class="product__result-name">${item.prName}</p>
+                                        <p class="product__result-name">${item.cost}</p>
+                                    </div>
+                                </a>
+                            `
+                        }).join("")}
+                    `
+                });
+            }
+            else {
+                window.alert("Something went wrong, please try again!")
+            }
+        }
+
+        const signOutBtn = $(".sidebar__logout")
+    
+        signOutBtn.addEventListener('click', async () => {
+            const response = await fetcher(`/users/sign_out`, "GET")
+            if (response.status === 200){
+                response.json().then((data) => {
+                    window.alert(data);
+                });
+                window.location.href = "/"
+            }
+        })
+    
+        const fetcher = async (url = "",method, data = {}) => {
+            const baseUrl = "http://localhost:7001"
+            // Default options are marked with *
+            const response = await fetch(baseUrl + url, {
+                method: method, // *GET, POST, PUT, DELETE, etc.
+                mode: "cors", // no-cors, *cors, same-origin
+                cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+                credentials: "same-origin", // include, *same-origin, omit
+                headers: {
+                    "Content-Type": "application/json",
+                    // 'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                redirect: "follow", // manual, *follow, error
+                referrerPolicy: "no-referrer"// no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            });
+            return response; // parses JSON response into native JavaScript objects
+        }
+
+        const POST = async (url = "", data = {}) => {
+            const baseUrl = "http://localhost:7001"
+            // Default options are marked with *
+            const res = await fetch(baseUrl + url, {
+                method: "POST", // *GET, POST, PUT, DELETE, etc.
+                mode: "cors", // no-cors, *cors, same-origin
+                cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+                credentials: "same-origin", // include, *same-origin, omit
+                headers: {
+                    "Content-Type": "application/json",
+                    // 'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                redirect: "follow", // manual, *follow, error
+                referrerPolicy: "no-referrer",// no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                body: JSON.stringify(data) // body data type must match "Content-Type" header
+            });
+
+            const status = res.status; // Get the HTTP status code
+            const response = await res.json(); // Parse JSON response
+
+            return { status, response }; // Return status code and parsed data
+        }
+    </script>
+</body>
+</html>

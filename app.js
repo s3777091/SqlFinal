@@ -13,8 +13,10 @@ const compression = require('compression');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var CartsRouter = require('./routes/payment');
-var ShopRouter = require('./routes/shop');
+
 var ProductRouter = require('./routes/product');
+
+var adminRouter = require('./routes/admin');
 
 var app = express();
 app.use(cors());
@@ -55,8 +57,8 @@ app.use(
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/carts', CartsRouter);
-app.use('/shop', ShopRouter);
 app.use('/product', ProductRouter);
+app.use('/admin', adminRouter);
 
 
 // catch 404 and forward to error handler

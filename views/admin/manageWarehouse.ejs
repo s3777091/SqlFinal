@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css" integrity="sha512-NmLkDIU1C/C88wi324HBc+S2kLhi08PN5GDeUVVVC/BVt/9Izdsc9SVeVfA1UZbY3sHUlDSyRXhCzHfr6hmPPw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="/css/admin.css">
+    <title>Document</title>
+</head>
+<body>
+    <%- include("./sidebar.ejs") %>
+    <main class="app">
+        <%- include("./topbar.ejs") %>
+        <div class="product">
+            <h1 class="product__header">Warehouse Management</h1>
+            <h3 class="product__desc">Make sure to delete all products before making any commitments.</h3>
+            <div class="product__edit">
+                <div class="product__edit-container">
+                    <p class="product__edit-field">City:</p>
+                    <div type="text" class="product__edit-value" id="wh-city">
+                        <%- warehouse.city %>
+                    </div>
+                    <input type="text" class="product__edit-input hidden" id="wh-edit-city" placeholder="City" value="<%- warehouse.city %>">
+                </div>
+                <div class="product__edit-container">
+                    <p class="product__edit-field">District:</p>
+                    <div type="text" class="product__edit-value" id="wh-district">
+                        <%- warehouse.district %>
+                    </div>
+                    <input type="text" class="product__edit-input hidden" id="wh-edit-district" placeholder="District" value="<%- warehouse.district %>">
+                </div>
+                <div class="product__edit-container">
+                    <p class="product__edit-field">Province:</p>
+                    <div type="text" class="product__edit-value" id="wh-province">
+                        <%- warehouse.province %>
+                    </div>
+                    <input type="text" class="product__edit-input hidden" id="wh-edit-province" placeholder="Province" value="<%- warehouse.province %>">
+                </div>
+                <div class="product__edit-container">
+                    <p class="product__edit-field">Street:</p>
+                    <div type="text" class="product__edit-value" id="wh-street">
+                        <%- warehouse.street %>
+                    </div>
+                    <input type="text" class="product__edit-input hidden" id="wh-edit-street" placeholder="Street" value="<%- warehouse.street %>">
+                </div>
+                <div class="product__edit-container">
+                    <p class="product__edit-field">Total Area:</p>
+                    <div type="text" class="product__edit-value" id="wh-totalArea">
+                        <%- warehouse.totalArea %>
+                    </div>
+                    <input type="text" class="product__edit-input hidden" id="wh-edit-totalArea" placeholder="Total Area" value="<%- warehouse.totalArea %>">
+                </div>
+            </div>
+            <div class="product__action">
+                <button class="product__btn-edit">Edit</button>
+                <button class="product__btn-destroy">Delete</button>
+                <button class="product__btn-destroy-danger">Delete All Products</button>
+            </div>
+        </div>
+    </main>
+    <script>
+        const $ = document.querySelector.bind(document);
+        const $$ = document.querySelectorAll.bind(document);
+
+        const params = new URLSearchParams(window.location.search)
+        const id = params.get("id")
+
+        const editWarehouseBtn = $(".product__btn-edit")
+
+        editWarehouseBtn.onclick = async () => {
+            const variant = editWarehouseBtn.textContent;
+
+            if (variant === 'Edit') {
+                editWarehouseBtn.textContent = 'Save';
+                const editFields = $$(".product__edit-value")
+                editFields.forEach((item) => {
+                    item.classList.add("hidden")
+                })
+                const editInputs = $$(".product__edit-input")
+                editInputs.forEach((item) => {
+                    item.classList.remove("hidden")
+                })
+            }
+            else {
+                const { status, response } = await PATCH('/admin/update_warehouse', {
+                    id,
+                    city: $("#wh-edit-city").value,
+                    district: $("#wh-edit-district").value,
+                    province: $("#wh-edit-province").value,
+                    street: $("#wh-edit-street").value,
+                    totalArea: $("#wh-edit-totalArea").value,
+                })
+                if (status === 200){
+                    window.alert("Warehouse edited successfully!")
+                }
+                else {
+                    window.alert(response.data.message || "Something went wrong, please try again!")
+                    return;
+                }
+                editWarehouseBtn.textContent = 'Edit';
+                const editFields = $$(".product__edit-value")
+                editFields.forEach((item) => {
+                    item.classList.remove("hidden")
+                    item.textContent = $(`#wh-edit-${item.id.split('-')[1]}`).value
+                })
+                const editInputs = $$(".product__edit-input")
+                editInputs.forEach((item) => {
+                    item.classList.add("hidden")
+                })
+            }
+        }
+
+        const deleteWarehouseBtn = $(".product__btn-destroy")
+
+        deleteWarehouseBtn.onclick = async () => {
+            const { status, response } = await DELETE(`/admin/delete_warehouse/${id}`)
+            if (status === 200){
+                window.alert("Warehouse deleted successfully!")
+                window.location.href = "/admin"
+            }
+            else {
+                window.alert(response.message || "Something went wrong, please try again!")
+            }
+        }
+
+        const deleteAllProductsBtn = $(".product__btn-destroy-danger")
+
+        deleteAllProductsBtn.onclick = async () => {
+            // Create the modal container
+            const modal = document.createElement('div');
+            modal.classList.add('modal');
+
+            // Set the HTML content for the modal container
+            modal.innerHTML = `
+                <div class="modal-container">
+                    <h1 class="modal-container__header">Are you sure?</h1>
+                    <p class="modal-container__desc">This process cannot be undone.</p>
+                    <div class="modal-container__action">
+                        <button class="modal-container__submit-btn">Proceed</button>
+                        <button class="modal-container__reject-btn">Cancel</button>
+                    </div>
+                </div>
+            `;
+
+            // Append the modal container to the body
+            document.body.appendChild(modal);
+            
+            const modalContainer = $(".modal-container")
+            const modalSubmitBtn = $(".modal-container__submit-btn")
+            const modalRejectBtn = $(".modal-container__reject-btn")
+
+            modalSubmitBtn.onclick = async () => {
+                const { status, response } = await DELETE(`/admin/warehouse/delete_all_products/${id}`)
+                if (status === 200){
+                    window.alert("All products deleted successfully!")
+                    modal.remove()
+                }
+                else {
+                    window.alert(response.message || "Something went wrong, please try again!")
+                }
+            }
+
+            modalRejectBtn.onclick = () => {
+                modal.remove()
+            }
+
+            modal.onclick = (e) => {
+                if (e.target === modal){
+                    modal.remove()
+                }
+            }
+
+            modalContainer.onclick = (e) => {
+                e.stopPropagation()
+            }
+        }
+
+        const signOutBtn = $(".sidebar__logout")
+    
+        signOutBtn.addEventListener('click', async () => {
+            const response = await fetcher(`/users/sign_out`, "GET")
+            if (response.status === 200){
+                response.json().then((data) => {
+                    window.alert(data);
+                });
+                window.location.href = "/"
+            }
+        })
+    
+        const fetcher = async (url = "",method, data = {}) => {
+            const baseUrl = "http://localhost:7001"
+            // Default options are marked with *
+            const response = await fetch(baseUrl + url, {
+                method: method, // *GET, POST, PUT, DELETE, etc.
+                mode: "cors", // no-cors, *cors, same-origin
+                cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+                credentials: "same-origin", // include, *same-origin, omit
+                headers: {
+                    "Content-Type": "application/json",
+                    // 'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                redirect: "follow", // manual, *follow, error
+                referrerPolicy: "no-referrer"// no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            });
+            return response; // parses JSON response into native JavaScript objects
+        }
+
+        const POST = async (url = "", data = {}) => {
+            const baseUrl = "http://localhost:7001"
+            // Default options are marked with *
+            const res = await fetch(baseUrl + url, {
+                method: "POST", // *GET, POST, PUT, DELETE, etc.
+                mode: "cors", // no-cors, *cors, same-origin
+                cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+                credentials: "same-origin", // include, *same-origin, omit
+                headers: {
+                    "Content-Type": "application/json",
+                    // 'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                redirect: "follow", // manual, *follow, error
+                referrerPolicy: "no-referrer",// no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                body: JSON.stringify(data) // body data type must match "Content-Type" header
+            });
+
+            const status = res.status; // Get the HTTP status code
+            const response = await res.json(); // Parse JSON response
+
+            return { status, response }; // Return status code and parsed data
+        }
+
+        const PATCH = async (url = "", data = {}) => {
+            const baseUrl = "http://localhost:7001"
+            // Default options are marked with *
+            const res = await fetch(baseUrl + url, {
+                method: "PATCH", // *GET, POST, PUT, DELETE, etc.
+                mode: "cors", // no-cors, *cors, same-origin
+                cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+                credentials: "same-origin", // include, *same-origin, omit
+                headers: {
+                    "Content-Type": "application/json",
+                    // 'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                redirect: "follow", // manual, *follow, error
+                referrerPolicy: "no-referrer",// no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                body: JSON.stringify(data) // body data type must match "Content-Type" header
+            });
+
+            const status = res.status; // Get the HTTP status code
+            const response = await res.json(); // Parse JSON response
+
+            return { status, response }; // Return status code and parsed data
+        }
+
+        const DELETE = async (url = "") => {
+            const baseUrl = "http://localhost:7001"
+            // Default options are marked with *
+            const res = await fetch(baseUrl + url, {
+                method: "DELETE", // *GET, POST, PUT, DELETE, etc.
+                mode: "cors", // no-cors, *cors, same-origin
+                cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+                credentials: "same-origin", // include, *same-origin, omit
+                headers: {
+                    "Content-Type": "application/json",
+                    // 'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                redirect: "follow", // manual, *follow, error
+                referrerPolicy: "no-referrer",// no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            });
+
+            const status = res.status; // Get the HTTP status code
+            const response = await res.json(); // Parse JSON response
+
+            return { status, response }; // Return status code and parsed data
+        }
+    </script>
+</body>
+</html>
