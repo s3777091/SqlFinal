@@ -148,7 +148,7 @@ router.get('/products', async (req, res, next) => {
       const products = await Product.findAndCountAll({
         where: {
           [Op.or]: [
-            { prName: { [Op.like]: `${searchTerm}%` } },
+            { prName: { [Op.like]: `%${searchTerm}%` } },
           ],
         },
         // Implement pagination using offset and limit
@@ -184,7 +184,7 @@ router.get('/products', async (req, res, next) => {
       const products = await Product.findAndCountAll({
         where: {
           [Op.or]: [
-            { prName: { [Op.like]: `${searchTerm}%` } },
+            { prName: { [Op.like]: `%${searchTerm}%` } },
           ],
         },
         // Implement pagination using offset and limit
