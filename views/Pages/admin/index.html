@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css" integrity="sha512-NmLkDIU1C/C88wi324HBc+S2kLhi08PN5GDeUVVVC/BVt/9Izdsc9SVeVfA1UZbY3sHUlDSyRXhCzHfr6hmPPw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="/public/css/admin.css">
+    <title>Document</title>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar__head">
+            <img src="/public/images/logo.png" alt="" class="sidebar__head-img">
+        </div>
+        <div class="sidebar__links">
+            <a href="/admin" class="sidebar__link">
+                <span class="material-symbols-outlined opacity-60">warehouse</span>
+                <p class="sidebar__link-text">Dashboard</p>
+            </a>
+            <a href="/admin" class="sidebar__link">
+                <span class="material-symbols-outlined opacity-60">box</span>
+                <p class="sidebar__link-text">Manage Product</p>
+            </a>
+            <a href="/admin" class="sidebar__link">
+                <span class="material-symbols-outlined opacity-60">category</span>
+                <p class="sidebar__link-text">Manage Category</p>
+            </a>
+        </div>
+        <div class="sidebar__logout">
+            <span class="material-symbols-outlined opacity-60">logout</span>
+            Sign out
+        </div>
+    </aside>
+    <main class="app">
+        <div class="topbar">
+            <div class="topbar__container">
+                <p class="topbar__container-name"></p>
+                <img src="" alt="" class="topbar__container-img">
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="product">
+            <h1 class="product__header">Ware Management</h1>
+            <h3 class="product__desc">Hello</h3>
+            <div class="product__edit">
+                <div class="product__edit-container">
+                    <p class="product__edit-field">Category Name:</p>
+                    <div type="text" class="product__edit-value" id="ct-name">
+                        <%- category.prName %>
+                    </div>
+                    <input type="text" class="product__edit-input hidden" id="ct-edit-name" placeholder="Category Name" value="<%- category.prName %>">
+                </div>
+                <div class="product__edit-container">
+                    <p class="product__edit-field">Category Link:</p>
+                    <div type="text" class="product__edit-value" id="ct-link">
+                        <%- category.prLink %>
+                    </div>
+                    <input type="text" class="product__edit-input hidden" id="ct-edit-link" placeholder="Category Link" value="<%- category.prLink %>">
+                </div>
+                <div class="product__edit-container">
+                    <p class="product__edit-field">Category Image:</p>
+                    <div type="text" class="product__edit-value" id="ct-image">
+                        <%- category.image %>
+                    </div>
+                    <input type="text" class="product__edit-input hidden" id="ct-edit-image" placeholder="Category Image" value="<%- category.image %>">
+                </div>
+                <div class="product__edit-container">
+                    <p class="product__edit-field">Expected Space:</p>
+                    <div type="text" class="product__edit-value" id="ct-expectedSpace">
+                        <%- category.expectedSpace %>
+                    </div>
+                    <input type="text" class="product__edit-input hidden" id="ct-edit-expectedSpace" placeholder="Expected Space" value="<%- category.expectedSpace %>">
+                </div>
+                <div class="product__edit-container">
+                    <p class="product__edit-field">Expected Quality:</p>
+                    <div type="text" class="product__edit-value" id="ct-expectedQuality">
+                        <%- category.expectedQuality %>
+                    </div>
+                    <input type="text" class="product__edit-input hidden" id="ct-edit-expectedQuality" placeholder="Expected Quality" value="<%- category.expectedQuality %>">
+                </div>
+            </div>
+            <div class="product__action">
+                <button class="product__btn-edit">Edit</button>
+                <div class="product__btn-destroy">Delete</div>
+                <div class="product__btn-destroy-danger">Delete All Products</div>
+            </div>
+        </div>
+    </main>
+    <script>
+        const $ = document.querySelector.bind(document);
+        const $$ = document.querySelectorAll.bind(document);
+
+        const signOutBtn = $(".sidebar__logout")
+        signOutBtn.onclick = () => {
+            console.log("Hello")
+        }
+
+        const deleteAllProductsBtn = $(".product__btn-destroy-danger")
+
+        deleteAllProductsBtn.onclick = async () => {
+            // Create the modal container
+            const modal = document.createElement('div');
+            modal.classList.add('modal');
+
+            // Set the HTML content for the modal container
+            modal.innerHTML = `
+                <div class="modal-container">
+                    <h1 class="modal-container__header">Are you sure?</h1>
+                    <p class="modal-container__desc">Do you really want to delete this category? This process cannot be undone.</p>
+                    <div class="modal-container__action">
+                        <button class="modal-container__submit-btn">Proceed</button>
+                        <button class="modal-container__reject-btn">Cancel</button>
+                    </div>
+                </div>
+            `;
+
+            // Append the modal container to the body
+            document.body.appendChild(modal);
+            
+            const modalContainer = $(".modal-container")
+            const modalSubmitBtn = $(".modal-container__submit-btn")
+            const modalRejectBtn = $(".modal-container__reject-btn")
+
+            modalSubmitBtn.onclick = async () => {
+                const { status, response } = await DELETE(`/admin/delete_all_products/${id}`)
+                if (status === 200){
+                    window.alert("All products deleted successfully!")
+                }
+                else {
+                    window.alert(response.data.message || "Something went wrong, please try again!")
+                }
+            }
+
+            modalRejectBtn.onclick = () => {
+                modal.remove()
+            }
+
+            modal.onclick = (e) => {
+                if (e.target === modal){
+                    modal.remove()
+                }
+            }
+
+            modalContainer.onclick = (e) => {
+                e.stopPropagation()
+            }
+        }
+    </script>
+</body>
+</html>

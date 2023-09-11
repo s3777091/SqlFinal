@@ -39,60 +39,16 @@
                         <li>Total <span id="total">
                             </span></li>
                     </ul>
-                    <a id="payment_click" href="#" class="primary-btn">Proceed to checkout</a>
+                    <a href="#" class="primary-btn">Proceed to checkout</a>
                 </div>
             </div>
         </div>
     </div>
-
-    <dialog id="dialog">
-        <h2>Payment Confirm</h2>
-
-        <div class="form-holder">
-            <p id="message"></p>
-            <input type="text" class="input" id="locationInput" placeholder="Current Location" />
-        </div>
-
-        <div class="dialog-container-footer">
-            <button id="decline_btn" class="buttoncheck is-ghost">Decline</button>
-            <button id="accept_btn" class="buttoncheck is-primary">Accept</button>
-        </div>
-
-        <button onclick="window.dialog.close();" aria-label="close" class="x">❌</button>
-    </dialog>
 </section>
 
 <script>
 
     const domain = 'http://localhost:7000';
-
-    getUserInformation();
-
-    async function getUserInformation() {
-        let response = await fetch(`${domain}/users/information`, {
-            method: "GET",
-            contentType: "application/json",
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-            },
-        });
-
-        const data = await response.json();
-
-        const crLocation = document.querySelector("#locationInput");
-        const tasLocation = data.location;
-
-        if (data.location === null) {
-            document.querySelector("#message").innerHTML = 'Current location is null. Please update.';
-            crLocation.placeholder = 'Pls update location here';
-
-        } else {
-            document.querySelector("#message").innerHTML = `Current location is ${tasLocation} you want to change ?\n If don't want change enter no`;
-            crLocation.placeholder = 'Enter new location';
-        }
-    }
-
 
     async function getCartsData() {
 
@@ -128,9 +84,6 @@
 
     getCartsData();
 
-
-
-
     async function deleteCarts(id) {
 
         const payload = JSON.stringify({
@@ -164,65 +117,7 @@
 
     }
 
-    document.querySelector("#accept_btn").addEventListener("click", async () => {
-        const locationInput = document.getElementById("locationInput");
 
-        if (locationInput.value === '') {
-            alert('Current location is empty. Please update.');
-        } else {
-            await payment(locationInput.value, true);
-        }
-    });
-
-    document.querySelector("#decline_btn").addEventListener("click", async () => {
-        await payment(locationInput.value, false);
-    });
-
-    async function payment(lo, active) {
-
-        if (active) {
-            const payload = JSON.stringify({
-                location: locationInput.value,
-                active: active
-            });
-
-            try {
-                let response = await fetch(`${domain}/carts/payment`, {
-                    method: "POST",
-                    headers: {
-                        Accept: "application/json",
-                        "Content-Type": "application/json",
-                    },
-                    body: payload
-                });
-
-                const mes = await response.json();
-
-
-
-                if (response.status === 500) {
-                    alert(mes.message);
-                }
-
-                if (response.status >= 200 && response.status <= 299) {
-                    window.location.href = '/carts/thanks';
-                }
-
-            } catch (error) {
-                console.error("An error occurred:", error);
-            }
-
-        } else {
-            alert('cancel to payment product');
-            location.reload();
-        }
-
-    }
-
-
-    document.querySelector("#payment_click").addEventListener("click", () => {
-        window.dialog.showModal();
-    });
 
 
 </script>

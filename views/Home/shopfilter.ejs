@@ -1,5 +1,79 @@
-<section class="shop spad">
+<style>
+    @import url(https://fonts.googleapis.com/css?family=Open+Sans);
+    .card div{
+        cursor: pointer;
+    }
+    .active{
+        background-color: red;
+    }
+    .category-active{
+        border-bottom: 1px solid black;
+    }
+    .container{
+        margin: 50px auto;
+    }
+    .search {
+        width: 100%;
+        position: relative;
+        display: flex;
+        justify-content: right;
+    }
+
+    .searchTerm {
+        width: 35%;
+        border: 3px solid black;
+        border-right: none;
+        padding: 5px;
+        border-radius: 5px 0 0 5px;
+        outline: none;
+        color: #9DBFAF;
+    }
+
+    .searchTerm:focus{
+        color: black;
+    }
+
+    .searchButton {
+        width: 40px;
+        border: 1px solid black;
+        background: black;
+        text-align: center;
+        color: #fff;
+        border-radius: 0 5px 5px 0;
+        cursor: pointer;
+        font-size: 20px;
+    }
+
+    /*Resize the wrap to see the search bar change!*/
+    .filter-wrapper{
+        margin: 10px auto;
+        position: relative;
+        display: flex;
+        justify-content: right;
+    }
+    .filter{
+        border-radius: 2px solid black;
+    }
+</style>
     <div class="container">
+        <div class="wrap">
+            <div class="search">
+                <input type="text" class="searchTerm" id = "search-input" placeholder="What are you looking for?">
+                <button class="searchButton" id ="search-button">
+                    <i class="fa fa-search"></i>
+                </button>
+            </div>
+            <div class="filter-wrapper">
+                <select name="filter" id="filter" onchange="filterSelect()">
+                    <option selected hidden label = "Filter">
+                    <option value="asc">A-Z</option>
+                    <option value="desc">Z-A</option>
+                    <option value="price-asc">Price ascending</option>
+                    <option value="price-desc">Price descending</option>
+                </select>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-lg-3 col-md-3">
                 <div class="shop__sidebar">
@@ -10,94 +84,30 @@
                         <div class="categories__accordion">
                             <div class="accordion" id="accordionExample">
                                 <div class="card">
-                                    <div class="card-heading active">
-                                        <a data-toggle="collapse" data-target="#collapseOne">Women</a>
-                                    </div>
-                                    <div id="collapseOne" class="collapse show" data-parent="#accordionExample">
-                                        <div class="card-body">
-                                            <ul>
-                                                <li><a href="#">Coats</a></li>
-                                                <li><a href="#">Jackets</a></li>
-                                                <li><a href="#">Dresses</a></li>
-                                                <li><a href="#">Shirts</a></li>
-                                                <li><a href="#">T-shirts</a></li>
-                                                <li><a href="#">Jeans</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
+                                    <div class="category" >Thời trang nữ</div>
                                 </div>
                                 <div class="card">
-                                    <div class="card-heading">
-                                        <a data-toggle="collapse" data-target="#collapseTwo">Men</a>
-                                    </div>
-                                    <div id="collapseTwo" class="collapse" data-parent="#accordionExample">
-                                        <div class="card-body">
-                                            <ul>
-                                                <li><a href="#">Coats</a></li>
-                                                <li><a href="#">Jackets</a></li>
-                                                <li><a href="#">Dresses</a></li>
-                                                <li><a href="#">Shirts</a></li>
-                                                <li><a href="#">T-shirts</a></li>
-                                                <li><a href="#">Jeans</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
+                                    <div class="category">Thời trang nam</div>
                                 </div>
                                 <div class="card">
-                                    <div class="card-heading">
-                                        <a data-toggle="collapse" data-target="#collapseThree">Kids</a>
-                                    </div>
-                                    <div id="collapseThree" class="collapse" data-parent="#accordionExample">
-                                        <div class="card-body">
-                                            <ul>
-                                                <li><a href="#">Coats</a></li>
-                                                <li><a href="#">Jackets</a></li>
-                                                <li><a href="#">Dresses</a></li>
-                                                <li><a href="#">Shirts</a></li>
-                                                <li><a href="#">T-shirts</a></li>
-                                                <li><a href="#">Jeans</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
+                                    <div class="category">Đồ Chơi - Mẹ & Bé</div>
                                 </div>
                                 <div class="card">
-                                    <div class="card-heading">
-                                        <a data-toggle="collapse" data-target="#collapseFour">Accessories</a>
-                                    </div>
-                                    <div id="collapseFour" class="collapse" data-parent="#accordionExample">
-                                        <div class="card-body">
-                                            <ul>
-                                                <li><a href="#">Coats</a></li>
-                                                <li><a href="#">Jackets</a></li>
-                                                <li><a href="#">Dresses</a></li>
-                                                <li><a href="#">Shirts</a></li>
-                                                <li><a href="#">T-shirts</a></li>
-                                                <li><a href="#">Jeans</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
+                                    <div class="category">Làm Đẹp - Sức Khỏe</div>
                                 </div>
                                 <div class="card">
-                                    <div class="card-heading">
-                                        <a data-toggle="collapse" data-target="#collapseFive">Cosmetic</a>
-                                    </div>
-                                    <div id="collapseFive" class="collapse" data-parent="#accordionExample">
-                                        <div class="card-body">
-                                            <ul>
-                                                <li><a href="#">Coats</a></li>
-                                                <li><a href="#">Jackets</a></li>
-                                                <li><a href="#">Dresses</a></li>
-                                                <li><a href="#">Shirts</a></li>
-                                                <li><a href="#">T-shirts</a></li>
-                                                <li><a href="#">Jeans</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
+                                    <div class="category">Phụ kiện thời trang</div>
+                                </div>
+                                <div class="card">
+                                    <div class="category">Laptop - Máy Vi Tính - Linh kiện</div>
+                                </div>
+                                <div class="card">
+                                    <div class="category">Điện Thoại - Máy Tính Bảng</div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="sidebar__filter">
+                    <!-- <div class="sidebar__filter">
                         <div class="section-title">
                             <h4>Shop by price</h4>
                         </div>
@@ -113,8 +123,8 @@
                             </div>
                         </div>
                         <a href="#">Filter</a>
-                    </div>
-                    <div class="sidebar__sizes">
+                    </div> -->
+                    <!-- <div class="sidebar__sizes">
                         <div class="section-title">
                             <h4>Shop by size</h4>
                         </div>
@@ -160,8 +170,8 @@
                                 <span class="checkmark"></span>
                             </label>
                         </div>
-                    </div>
-                    <div class="sidebar__color">
+                    </div> -->
+                    <!-- <div class="sidebar__color">
                         <div class="section-title">
                             <h4>Shop by size</h4>
                         </div>
@@ -207,47 +217,166 @@
                                 <span class="checkmark"></span>
                             </label>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <div class="col-lg-9 col-md-9">
-                <div class="row">
-
-                    <div class="col-lg-4 col-md-6">
-                        <div class="product__item sale">
-                            <div class="product__item__pic set-bg" data-setbg="img/shop/shop-9.jpg">
-                                <div class="label">Sale</div>
-                                <ul class="product__hover">
-                                    <li><a href="img/shop/shop-9.jpg" class="image-popup"><span
-                                                class="arrow_expand"></span></a></li>
-                                    <li><a href="#"><span class="icon_heart_alt"></span></a></li>
-                                    <li><a href="#"><span class="icon_bag_alt"></span></a></li>
-                                </ul>
-                            </div>
-                            <div class="product__item__text">
-                                <h6><a href="#">Water resistant zips backpack</a></h6>
-                                <div class="rating">
-                                    <i class="fa fa-star"></i>
-                                    <i class="fa fa-star"></i>
-                                    <i class="fa fa-star"></i>
-                                    <i class="fa fa-star"></i>
-                                    <i class="fa fa-star"></i>
-                                </div>
-                                <div class="product__price">$ 49.0 <span>$ 59.0</span></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-12 text-center">
-                        <div class="pagination__option">
-                            <a href="#">1</a>
-                            <a href="#">2</a>
-                            <a href="#">3</a>
-                            <a href="#"><i class="fa fa-angle-right"></i></a>
-                        </div>
-                    </div>
+                <div class="row" id ="product-list">
                 </div>
+                   <div class="col-lg-12 text-center">
+                        <div class="pagination__option" id="pagination-wrapper"></div>
+                    </div>
+                
             </div>
         </div>
     </div>
 </section>
+<script>
+    const categories = Array.from(document.getElementsByClassName('category'))
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const searchBtn= document.getElementById("search-button")
+    var searchTerm = urlParams.get("search") ? urlParams.get("search") : ""; 
+    var pageNum = urlParams.get("page") ? urlParams.get("page") : 1 ;
+    var currentCategory = urlParams.get("category") ? urlParams.get("category") : "Thời trang nữ";
+    var sortBy = urlParams.get("sortBy") ? urlParams.get("sortBy") : "" ;
+    const getFilterIndex = (sortBy) => {
+        if (sortBy == "asc"){
+            return 1
+        }
+        else if (sortBy == "desc"){
+            return 2
+        }
+        else if (sortBy == "price-asc"){
+            return 3
+        }
+        else if (sortBy == "price-desc"){
+            return 4
+        }
+        else return 0
+    }
+    const getCategoryId = (category) =>{
+        if(category == "Thời trang nữ"){
+            return 1;
+        }
+        else if (category == "Thời trang nam") {
+            return 2;
+        }
+        else if (category == "Làm Đẹp - Sức Khỏe") {
+            return 4;
+        }
+        else if (category == "Phụ kiện thời trang") {
+            return 5;
+        }
+        else if (category == "Laptop - Máy Vi Tính - Linh kiện") {
+            return 6;
+        }
+        else if (category == "Điện Thoại - Máy Tính Bảng") {
+            return 7;
+        }
+        else {
+            return 3;
+        }
+    }
+    const filterSelect = () =>{
+        sortBy = document.getElementById("filter").value;
+        window.location.href = '/shop?page='+pageNum+"&category="+currentCategory+"&search="+searchTerm+"&sortBy="+sortBy;
+    }
+    searchBtn.addEventListener('click', (e) =>{
+        // console.log("hello")
+        searchTerm = document.getElementById('search-input').value;
+        window.location.href = '/shop?page='+pageNum+"&category="+currentCategory+"&search="+searchTerm;
+    })
+    categories.forEach(category => {
+        category.addEventListener('click', async (e) => {
+            currentCategory = e.target.innerHTML;
+            // console.log(currentCategory)
+            pageNum = 1;
+            // fetchProducts(baseURL + "/filter?categoryId=" + getCategoryId(currentCategory)+"&page="+1 + "&category="+currentCategory);
+            window.location.href = '/shop?page='+pageNum+"&category="+currentCategory;
+            // window.history.pushState( "/shop?page=1");
+        });
+    });
+    fetchProducts(baseURL + "/filter?categoryId=" + getCategoryId(currentCategory)+"&page="+pageNum + "&search="+searchTerm+"&sortBy="+sortBy);
+    async function fetchProducts(url = "") {
+                for (var i = 0; i < categories.length ; i++){
+                    if(categories[i].innerHTML.includes(currentCategory)){
+                        categories[i].classList.add("category-active");
+                    }
+                }
+                document.getElementById("filter")[getFilterIndex(sortBy)].setAttribute('selected','selected');
+                // Default options are marked with *
+                const response = await fetch(url, {
+                    method: "GET", // *GET, POST, PUT, DELETE, etc.
+                    mode: "cors", // no-cors, *cors, same-origin
+                    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+                    credentials: "same-origin", // include, *same-origin, omit
+                    headers: {
+                        "Content-Type": "application/json",
+                        // 'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    redirect: "follow", // manual, *follow, error
+                    referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                });
+                if(response.status == 200){
+                    response.json().then((data) => {
+                        var productList = document.getElementById("product-list");
+                        const pagination = document.getElementById("pagination-wrapper");
+                        pagination.innerHTML = ""
+                        productList.innerHTML = ""
+                        for (var i = 1 ; i <= data.totalPage; i++){
+                            if(i == pageNum){
+                                pagination.innerHTML += `
+                                <a class = "paginationNum active">${i}</a>
+                                `
+                            }
+                            else{
+                                pagination.innerHTML += `
+                                <a class = "paginationNum">${i}</a>
+                                `
+                            }
+                        }
+                        const paginationNums = document.getElementsByClassName("paginationNum");
+                        Array.from(paginationNums).forEach(pageNumber => {
+                            pageNumber.addEventListener('click',async (e) =>{
+                                pageNum = e.target.innerHTML
+                                console.log(pageNum)
+                                var url = '/shop?page='+pageNum+"&category="+currentCategory
+                                if(searchTerm && searchTerm.length > 0){
+                                    url += "&search="+searchTerm;
+                                }
+                                if(sortBy && sortBy.length > 0){
+                                    url += "&sortBy="+sortBy;
+                                }
+                                window.location.href = url;
+                            })
+                        })
+                        data.products.rows.forEach(product => {
+                            productList.innerHTML += `
+                            <div class="col-lg-4 col-md-6">
+                            <div class="product__item sale">
+                                <div class="product__item__pic set-bg" >
+                                    <img src = ${product.image}/>
+                                    <ul class="product__hover">
+                                        <li><a style ="cursor:pointer"><span class="icon_bag_alt"></span></a></li>
+                                    </ul>
+                                </div>
+                                <div class="product__item__text">
+                                    <h6><a href="#">${product.prName}</a></h6>
+                                    <div class="rating">
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star"></i>
+                                    </div>
+                                    <div class="product__price">$ ${product.cost} <span>$ ${product.cost}</span></div>
+                                </div>
+                            </div>
+                        </div>
+                            ` 
+                        });
+                    })
+            }
+    }
+</script>

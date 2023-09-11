@@ -15,7 +15,10 @@
     </div>
     <div id="mobile-menu-wrap"></div>
     <div class="offcanvas__auth">
-        <a href="/users">account</a>
+        <% if ( typeof userInfo == "undefined")  { %>
+            <a href="/users">account</a>
+        <%} else { %>
+        <% } %>
     </div>
 </div>
 
@@ -44,7 +47,11 @@
             <div class="col-lg-3">
                 <div class="header__right">
                     <div class="header__right__auth">
-                        <a href="/users">account</a>
+                        <% if ( typeof userInfo == "undefined")  { %>
+                            <a href="/users">account</a>
+                        <%} else { %>
+                            <button id = "sign-out-btn">Sign out</button>
+                        <% } %>
                     </div>
                     <ul class="header__right__widget">
                         <li><span class="icon_search search-switch"></span></li>
@@ -59,3 +66,34 @@
         </div>
     </div>
 </header>
+<script>
+    const baseURL = "http://localhost:7001" 
+    const signOutBtn = document.getElementById("sign-out-btn");
+    if(signOutBtn !== null){
+    signOutBtn.addEventListener('click',async (e) =>{
+        let response = await fetchData(baseURL + "/users/sign_out","GET")
+        if(response.status === 200){
+            response.json().then((data) => {
+                window.alert(data);
+            });
+            window.location.href = "/"
+        }
+    })
+    }
+    async function fetchData(url = "",method, data = {}) {
+                // Default options are marked with *
+                const response = await fetch(url, {
+                    method: method, // *GET, POST, PUT, DELETE, etc.
+                    mode: "cors", // no-cors, *cors, same-origin
+                    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+                    credentials: "same-origin", // include, *same-origin, omit
+                    headers: {
+                        "Content-Type": "application/json",
+                        // 'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    redirect: "follow", // manual, *follow, error
+                    referrerPolicy: "no-referrer"// no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                });
+                return response; // parses JSON response into native JavaScript objects
+            }
+</script>

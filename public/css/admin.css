@@ -1,0 +1,400 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+html {
+  font-family: 'Roboto', sans-serif;
+}
+
+.opacity-60 {
+  opacity: 0.6;
+}
+
+.line {
+  border: 1px solid #e7e7e7;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.mt-2 {
+  margin-top: 1rem;
+}
+
+.flex {
+  display: flex;
+}
+
+.justify-end {
+  justify-content: end;
+}
+
+.h-full {
+  height: 100%;
+}
+
+.hidden {
+  display: none;
+}
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 17.5rem;
+  background-color: white;
+  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.12);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar__head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  justify-content: center;
+}
+
+.sidebar__head-img {
+  height: 32px;
+}
+
+.sidebar__head-text {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #212B36;
+}
+
+.sidebar__links {
+  margin-top: 44px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar__link {
+  text-decoration: none;
+  color: #212B36;
+  display: flex;
+  position: relative;
+  height: 42px;
+  gap: 10px;
+  padding-inline: 40px;
+  align-items: center;
+}
+
+.sidebar__link:hover {
+  background-color: #F4F7FF;
+  transition: all ease-in-out 0.1s;
+}
+
+.sidebar__link-text {
+  line-height: 24px;
+  color: rgb(99 115 129);
+}
+
+.sidebar__logout {
+  cursor: pointer;
+  margin-top: auto;
+  display: flex;
+  position: relative;
+  height: 42px;
+  gap: 10px;
+  padding-inline: 40px;
+  align-items: center;
+  line-height: 24px;
+  color: rgb(99 115 129);
+}
+
+.sidebar__logout:hover {
+  background-color: #F4F7FF;
+  transition: all ease-in-out 0.1s;
+}
+
+.topbar {
+  display: flex;
+  height: 5rem;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 3.5rem;
+  background-color: white;  
+}
+
+.topbar__container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.topbar__container-name {
+  color: #212B36;
+  font-family: 'Roboto';
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+.topbar__container-img {
+  height: 46px;
+}
+
+.app {
+  padding-left: 17.5rem;
+  min-height: 100vh;
+  background-color: #F9FAFB;
+}
+
+.product {
+  padding-inline: 40px;
+  padding-top: 40px;
+}
+
+.product__header {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.product__desc {
+  font-weight: 400;
+  color: #212B36;
+  opacity: 0.8;
+  font-size: 16px;
+  margin-top: 8px;
+}
+
+.product__add {
+  margin-top: 20px;
+}
+
+.product__add-header {
+  font-weight: 400;
+  font-size: 18px;
+}
+
+.product__add-field {
+  display: flex;
+  position: relative;
+}
+
+.product__add-input {
+  outline: none;
+  border: 1px solid rgba(0, 0, 0, 0.13);
+  padding: 12px 20px;
+  width: 100%;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.product__add-submit {
+  border: none;
+  background-color: dodgerblue;
+  color: white;
+  font-size: 16px;
+  margin-top: 16px;
+  padding: 12px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.product__search {
+  width: 360px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.product__search-icon-container {
+  color: #212B36;
+  transform: scale(0.8);
+  height: 56px;
+  width: 120px;
+  background-color: dodgerblue;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.product__search-icon {
+  color: white;
+}
+
+.product__search-box {
+  width: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.13);
+  padding: 12px 20px;
+  font-size: 14px;
+  line-height: 20px;
+  outline: none;
+}
+
+.product__result {
+  margin-top: 4px;
+  width: 352px;
+  background-color: white;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.product__result-item {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+}
+
+.product__result-img {
+  width: 56px;
+}
+
+.product__result-name {
+  font-size: 16px;
+  line-height: 20px;
+  color: #212B36;
+}
+
+.product__result-desc {
+  font-size: 12px;
+  color: darkgray;
+  line-height: 16px;
+}
+
+.product__edit {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.product__edit-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.product__edit-field {
+  position: absolute;
+}
+
+.product__edit-value, .product__edit-input {
+  font-size: 16px;
+  line-height: 24px;
+  margin-left: 140px;
+  padding: 4px 16px;
+}
+
+.product__edit-input {
+  outline: none;
+  border: 1px solid rgba(0, 0, 0, 0.13);
+}
+
+.product__action {
+  display: flex;
+  justify-content: end;
+  gap: 12px;
+}
+
+.product__btn-edit {
+  border: none;
+  background-color: dodgerblue;
+  color: white;
+  font-size: 16px;
+  margin-top: 16px;
+  padding: 12px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.product__btn-destroy {
+  border: none;
+  background-color: tomato;
+  color: white;
+  font-size: 16px;
+  margin-top: 16px;
+  padding: 12px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.product__btn-destroy-danger {
+  border: none;
+  background-color: red;
+  color: white;
+  font-size: 16px;
+  margin-top: 16px;
+  padding: 12px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.modal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 600px;
+}
+
+.modal-container__header {
+  font-size: 20px;
+  font-weight: 500;
+  color: #212B36;
+}
+
+.modal-container__desc {
+  font-size: 16px;
+  font-weight: 400;
+  color: #212B36;
+  opacity: 0.8;
+  margin-top: 8px;
+}
+
+.modal-container__action {
+  margin-top: 80px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.modal-container__submit-btn {
+  border: none;
+  background-color: tomato;
+  color: white;
+  font-size: 16px;
+  padding: 12px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.modal-container__reject-btn {
+  border: none;
+  background-color: dodgerblue;
+  color: white;
+  font-size: 16px;
+  padding: 12px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+}

@@ -1,0 +1,382 @@
+var express = require('express');
+var router = express.Router();
+
+
+const db = require("../models");
+const config = require("../config/auth-config");
+
+const User = db.user;
+const Role = db.role;
+const Product = db.product;
+const Category = db.category;
+
+const Op = db.Sequelize.Op;
+
+
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+
+const { textToSlug } = require('../config/tool')
+
+
+router.get('/', async function (req, res, next) {
+  try {
+    const decoded = jwt.verify(req.session.token, config.secret);
+    const user = await User.findByPk(decoded.id);
+
+    if (!user) {
+      return res.status(401).json("User not found");
+    }
+
+    const userInfo = {
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+    }
+
+    res.render('Pages/admin/index', { title: 'Admin page', userInfo });
+  } catch (error) {
+    return res.status(500).send({ message: error.message });
+  }
+});
+
+router.get('/product', async function (req, res, next) {
+  try {
+    const decoded = jwt.verify(req.session.token, config.secret);
+    const user = await User.findByPk(decoded.id);
+
+    if (!user) {
+      return res.status(401).json("User not found");
+    }
+
+    const userInfo = {
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+    }
+
+    res.render('Pages/admin/productAdmin', { title: 'Admin page', userInfo });
+  } catch (error) {
+    return res.status(500).send({ message: error.message });
+  }
+})
+
+router.get('/category', async function (req, res, next) {
+  try {
+    const decoded = jwt.verify(req.session.token, config.secret);
+    const user = await User.findByPk(decoded.id);
+
+    if (!user) {
+      return res.status(401).json("User not found");
+    }
+
+    const userInfo = {
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+    }
+
+    res.render('Pages/admin/categoryAdmin', { title: 'Admin page', userInfo });
+  } catch (error) {
+    return res.status(500).send({ message: error.message });
+  }
+})
+
+router.post('/create_product', async (req, res, next) => {
+  const transaction = await db.sequelize.transaction(); // Start a transaction
+
+  try {
+    const decoded = jwt.verify(req.session.token, config.secret);
+    const user = await User.findByPk(decoded.id);
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    const userRole = await user.getRoles();
+
+    if (userRole[0].name !== 'admin') {
+      return res.status(401).json({ message: "You are not admin" });
+    }
+
+    const [product, created] = await Product.findOrCreate({
+      where: {
+        prName: req.body.prName,
+        cost: req.body.cost,
+        categoryId: req.body.categoryId,
+      },
+      defaults: {
+        prId: req.body.prId,
+        prLink: req.body.prLink,
+        image: req.body.image,
+        brand: req.body.brand,
+        space: req.body.space,
+        amount: req.body.amount,
+        categoryId: req.body.categoryId,
+        warehouseId: req.body.warehouseId,
+      }
+    })
+
+    if (!created) {
+      return res.status(401).json({ message: "Product already exists" });
+    }
+
+    await transaction.commit();
+    return res.status(200).json({ message: "Product created successfully" });
+  } catch (error) {
+    await transaction.rollback();
+    return res.status(500).json({ message: error.message });
+  }
+})
+
+router.post('/create_category', async (req, res, next) => {
+  const transaction = await db.sequelize.transaction(); // Start a transaction
+  try {
+    const decoded = jwt.verify(req.session.token, config.secret);
+    const user = await User.findByPk(decoded.id);
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    const userRole = await user.getRoles();
+
+    if (userRole[0].name !== 'admin') {
+      return res.status(401).json({ message: "You are not admin" });
+    }
+
+    const [category, created] = await Category.findOrCreate({
+      where: {
+        code: req.body.code,
+        name: req.body.name,
+      },
+      defaults: {
+        image: req.body.image,
+        slug: textToSlug(req.body.name),
+        expectedSpace: (420.4 * 266.2 * 20.8) / 1000000000,
+        expectedQuality: 100,
+        link: req.body.link,
+      }
+    })
+
+    if (!created) {
+      return res.status(401).json({ message: "Category already exists" });
+    }
+
+    await transaction.commit();
+    return res.status(200).json({ message: "Category created successfully" });
+  } catch (error) {
+    await transaction.rollback();
+    return res.status(500).json({ message: error.message });
+  }
+})
+
+router.get('/search_product/:prName', async (req, res, next) => {
+  const transaction = await db.sequelize.transaction(); // Start a transaction
+  try {
+    const decoded = jwt.verify(req.session.token, config.secret);
+    const user = await User.findByPk(decoded.id);
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    const userRole = await user.getRoles();
+
+    if (userRole[0].name !== 'admin') {
+      return res.status(401).json({ message: "You are not admin" });
+    }
+
+    const products = await Product.findAll({
+      where: {
+        prName: {
+          [Op.like]: `%${req.params.prName}%`
+        }
+      },
+      transaction,
+      limit: 3,
+    })
+
+    return res.status(200).json({ products });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+})
+
+router.get('/search_category/:name', async (req, res, next) => {
+  const transaction = await db.sequelize.transaction(); // Start a transaction
+  try {
+    const decoded = jwt.verify(req.session.token, config.secret);
+    const user = await User.findByPk(decoded.id);
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    const userRole = await user.getRoles();
+
+    if (userRole[0].name !== 'admin') {
+      return res.status(401).json({ message: "You are not admin" });
+    }
+
+    const categories = await Category.findAll({
+      where: {
+        name: {
+          [Op.like]: `%${req.params.name}%`
+        }
+      },
+      transaction,
+      limit: 3,
+    })
+
+    return res.status(200).json({ categories });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+})
+
+router.get('/product/edit', async (req, res, next) => {
+  const transaction = await db.sequelize.transaction(); // Start a transaction
+  try {
+    const decoded = jwt.verify(req.session.token, config.secret);
+    const user = await User.findByPk(decoded.id);
+
+    if (!user) {
+      return res.status(401).json("User not found");
+    }
+
+    const userInfo = {
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+    }
+
+    const product = await Product.findByPk(req.query.id);
+
+    if (!product) {
+      return res.status(401).json({ message: "Product not found" });
+    }
+
+    return res.render('Pages/admin/manageProduct', { title: 'Admin page', product, userInfo });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+})
+
+router.patch('/update_product', async (req, res, next) => {
+  const transaction = await db.sequelize.transaction(); // Start a transaction
+  try {
+    const decoded = jwt.verify(req.session.token, config.secret);
+    const user = await User.findByPk(decoded.id);
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    const userRole = await user.getRoles();
+
+    if (userRole[0].name !== 'admin') {
+      return res.status(401).json({ message: "You are not admin" });
+    }
+
+    const product = await Product.findByPk(req.body.id);
+
+    if (!product) {
+      return res.status(401).json({ message: "Product not found" });
+    }
+
+    await product.update({
+      prName: req.body.prName,
+      prLink: req.body.prLink,
+      image: req.body.image,
+      brand: req.body.brand,
+      space: req.body.space,
+      amount: req.body.amount,
+    })
+
+    await transaction.commit();
+    return res.status(200).json({ message: "Product updated successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+})
+
+router.patch('/update_category', async (req, res, next) => {
+  const transaction = await db.sequelize.transaction(); // Start a transaction
+  try {
+    const decoded = jwt.verify(req.session.token, config.secret);
+    const user = await User.findByPk(decoded.id);
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    const userRole = await user.getRoles();
+
+    if (userRole[0].name !== 'admin') {
+      return res.status(401).json({ message: "You are not admin" });
+    }
+
+    const category = await Category.findByPk(req.body.id);
+
+    if (!category) {
+      return res.status(401).json({ message: "Category not found" });
+    }
+
+    const product = await Product.findOne({
+      where: {
+        categoryId: req.body.id,
+      }
+    })
+
+    if (product) {
+      return res.status(401).json({ message: "Category is in use" });
+    }
+
+    await category.update({
+      name: req.body.name,
+      image: req.body.image,
+      link: req.body.link,
+      expectedSpace: req.body.expectedSpace,
+      expectedQuality: req.body.expectedQuality,
+    })
+
+    await transaction.commit();
+    return res.status(200).json({ message: "Category updated successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+})
+
+router.delete('/delete_product/:productId', async (req, res, next) => {
+  const transaction = await db.sequelize.transaction(); // Start a transaction
+  try {
+    const decoded = jwt.verify(req.session.token, config.secret);
+    const user = await User.findByPk(decoded.id);
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    const userRole = await user.getRoles();
+
+    if (userRole[0].name !== 'admin') {
+      return res.status(401).json({ message: "You are not admin" });
+    }
+
+    const product = await Product.findByPk(req.params.productId);
+
+    if (!product) {
+      return res.status(401).json({ message: "Product not found" });
+    }
+
+    await product.destroy({ transaction });
+
+    await transaction.commit();
+    return res.status(200).json({ message: "Product deleted successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+})
+
+module.exports = router;
