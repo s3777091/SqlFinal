@@ -111,7 +111,7 @@ async function initial() {
         await transaction.commit();
 
 
-        addCode('141fbff3-da9a-cf08-de75-ce88e3ea8fc8');
+        addCode(process.env.TOKEN);
 
         const pr1 = ["931", "915", "2549", "1520"];
         pr1.forEach(i => {
