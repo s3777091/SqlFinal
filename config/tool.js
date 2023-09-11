@@ -65,7 +65,7 @@ async function createProduct(idCode, page, limit, WH) {
         }
 
         const response = await fetch(
-            `${process.env.TIKI_SLUG}?limit=${limit}&aggregations=2&version=home-persionalized&trackity_id=${token.code}&category=${category.code}&page=${page}&urlKey=${category.slug}`,
+            `${process.env.TIKI_SLUG}?limit=${limit}&aggregations=2&version=home-persionalized&trackity_id=${process.env.TOKEN}&category=${category.code}&page=${page}&urlKey=${category.slug}`,
             {
                 method: "GET",
                 headers: {
