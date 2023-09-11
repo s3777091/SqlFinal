@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const bodyParser = require('body-parser')
 
 const cors = require("cors");
 
@@ -13,6 +14,9 @@ const compression = require('compression');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var CartsRouter = require('./routes/payment');
+var adminRouter = require('./routes/admin');
+var sellerRouter = require('./routes/seller');
+
 var ShopRouter = require('./routes/shop');
 var ProductRouter = require('./routes/product');
 
@@ -28,6 +32,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.urlencoded({extended:false}))
+app.use(bodyParser.json())
 
 app.use(compression({
   level: 6,
@@ -57,7 +63,8 @@ app.use('/users', usersRouter);
 app.use('/carts', CartsRouter);
 app.use('/shop', ShopRouter);
 app.use('/product', ProductRouter);
-
+app.use('/admin',adminRouter);
+app.use('/seller',sellerRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

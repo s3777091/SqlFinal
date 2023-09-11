@@ -31,6 +31,8 @@ router.get('/thanks', async (req, res, next) => {
 
 
 router.post("/add", authJwt.verifyToken, async (req, res, next) => {
+    const transaction = await Sequelize.transaction();
+
     const productId = req.body.idProduct;
     const quality = req.body.quality;
     const option = req.body.productOption;
@@ -38,12 +40,13 @@ router.post("/add", authJwt.verifyToken, async (req, res, next) => {
     try {
         const decoded = jwt.verify(req.session.token, config.secret);
         const user = await User.findByPk(decoded.id);
-
         await Sequelize.query('CALL addProductToCart(?, ?, ?, ?)',
             { replacements: [user.id, productId, quality, option] }
         );
 
-        res.redirect("/");
+        await transaction.commit();
+
+        res.status(200).json("Product added");
     } catch (error) {
         await transaction.rollback();
         return res.status(500).send({ message: error.message });

@@ -1,3 +1,4 @@
+</style>
 <!-- Services Section Begin -->
 <section class="services spad">
     <div class="container">
@@ -69,14 +70,68 @@
         <div class="row property__gallery" id="list_product"></div>
     </div>
 </section>
-
+<!-- Instagram Begin -->
+<div class="instagram">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
+                <div class="instagram__item set-bg" data-setbg="/images/instagram/insta-1.jpg">
+                    <div class="instagram__text">
+                        <i class="fa fa-instagram"></i>
+                        <a href="#">@ Lazada_shop</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
+                <div class="instagram__item set-bg" data-setbg="/images/instagram/insta-2.jpg">
+                    <div class="instagram__text">
+                        <i class="fa fa-instagram"></i>
+                        <a href="#">@ Lazada_shop</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
+                <div class="instagram__item set-bg" data-setbg="/images/instagram/insta-3.jpg">
+                    <div class="instagram__text">
+                        <i class="fa fa-instagram"></i>
+                        <a href="#">@ Lazada_shop</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
+                <div class="instagram__item set-bg" data-setbg="/images/instagram/insta-4.jpg">
+                    <div class="instagram__text">
+                        <i class="fa fa-instagram"></i>
+                        <a href="#">@ Lazada_shop</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
+                <div class="instagram__item set-bg" data-setbg="/images/instagram/insta-5.jpg">
+                    <div class="instagram__text">
+                        <i class="fa fa-instagram"></i>
+                        <a href="#">@ Lazada_shop</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-4 p-0">
+                <div class="instagram__item set-bg" data-setbg="/images/instagram/insta-6.jpg">
+                    <div class="instagram__text">
+                        <i class="fa fa-instagram"></i>
+                        <a href="#">@ Lazada_shop</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Instagram End -->
 <script>
 
     const domain = 'http://localhost:7000';
-
-    async function fetchProduct(id) {
-        try {
-            const response = await fetch(`${domain}/filter?categoryId=${id}&limit=32`, {
+    async function fetchProducts(){
+        try{
+        const response = await fetch(`${domain}/filter?categoryId=${id}&limit=32`, {
                 method: 'GET',
                 headers: {
                     Accept: "application/json",
@@ -107,8 +162,40 @@
             console.error(error);
         }
     }
+    // async function fetchProduct(id) {
+    //     try {
+    //         const response = await fetch(`${domain}/filter?categoryId=${id}&limit=32`, {
+    //             method: 'GET',
+    //             headers: {
+    //                 Accept: "application/json",
+    //                 "Content-Type": "application/json",
+    //                 "User-Agent": "5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"
+    //             },
+    //         });
 
-    fetchProduct(1);
+
+    //         const data = await response.json();
+
+    //         var tash = "";
+
+    //         for (let h in data.products) {
+    //             const ne = data.products[h];
+    //             tash += `<div class="col-lg-3 col-md-4 col-sm-6">`;
+    //             tash += `<div class="product__item">`;
+    //             tash += `<image class="product__item__pic" src="${ne.image}" />`;
+    //             tash += `<ul class="product__hover">`;
+    //             tash += `<li><a onclick="addCart(id = '${ne.id}', ql = '1')" ><span class="icon_bag_alt"></span></a></li></ul></div>`;
+    //             tash += `<div class="product__item__text"><h6><a href="#">${ne.prName}</a></h6>`;
+    //             tash += `<div class="product__price">${ne.cost} VND</div></div></div>`;
+    //         }
+
+    //         document.querySelector("#list_product").innerHTML = tash;
+    //     } catch (error) {
+    //         console.error(error);
+    //     }
+    // }
+
+    // fetchProduct(1);
 
     document.addEventListener('DOMContentLoaded', function () {
         const filterControls = document.querySelectorAll('.filter__controls li[data-filter]');
