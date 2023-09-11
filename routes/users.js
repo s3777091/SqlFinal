@@ -137,7 +137,7 @@ router.post("/sign_up", [verifySignUp.checkDuplicateUsernameOrEmail, verifySignU
     const emailValue = req.body.email;
     const passwordValue = req.body.password;
 
-    if (userValue === null || userValue.length === 0) {
+    if (userValue === null || userValue.length === 0 || userValue === -1) {
       return res.status(403).send({
         message: "Current user name must have a value",
       });

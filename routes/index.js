@@ -3,10 +3,11 @@ var router = express.Router();
 
 
 const db = require("../models");
+const { isAdmin } = require('../Middleware/authJWT');
 
 const Product = db.product;
 const Category = db.category;
-
+const Admin = db.admin;
 const Op = db.Sequelize.Op;
 
 
@@ -116,7 +117,7 @@ router.post("/search", async (req, res, next) => {
 });
 
 
-router.post("/add_code", async (req, res, next) => {
+router.post("/add_code", isAdmin ,async (req, res, next) => {
   try {
     const [cart, created] = await Admin.findOrCreate({
       where: {

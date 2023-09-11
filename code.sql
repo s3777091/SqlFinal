@@ -120,20 +120,17 @@ DELIMITER ;
 
 
 DELIMITER //
-
 DROP TRIGGER IF EXISTS check_update_quality;
-
 CREATE TRIGGER check_update_quality
     BEFORE UPDATE ON qualities
     FOR EACH ROW
 BEGIN
     DECLARE new_stock_quantity INT;
-
     IF NEW.status = 'success' THEN
         -- Calculate the new stock quantity after the update
         SET new_stock_quantity = (SELECT amount - NEW.quality FROM products WHERE id = NEW.productID);
 
-        IF new_stock_quantity >= 0 THEN
+        IF new_stock_quantity > 0 THEN
             UPDATE products SET amount = new_stock_quantity WHERE id = NEW.productID;
         ELSE
             SIGNAL SQLSTATE '45000'
@@ -141,7 +138,6 @@ BEGIN
         END IF;
     END IF;
 END //
-
 DELIMITER ;
 
 

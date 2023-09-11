@@ -113,15 +113,17 @@ async function initial() {
 
         addCode('141fbff3-da9a-cf08-de75-ce88e3ea8fc8');
 
-
-        const productIdentifiers = ["931", "915", "2549", "1520", "27498", "1846", "1789"];
-
-        productIdentifiers.forEach(identifier => {
-            console.log('////');
-            createProduct(identifier, "1", 80, 1);
-            createProduct(identifier, "2", 80, 2);
+        const pr1 = ["931", "915", "2549", "1520"];
+        pr1.forEach(i => {
+            console.log('Ware house 1');
+            createProduct(i, "1", 80, 1);
         });
 
+        const pr2 = ["27498", "1846", "1789"];
+        pr2.forEach(i => {
+            console.log('Ware house 2');
+            createProduct(i, "2", 80, 2);
+        });
 
     } catch (error) {
         await transaction.rollback();
@@ -130,7 +132,7 @@ async function initial() {
 }
 
 
-db.sequelize.sync({ force: true }).then(async () => {
+db.sequelize.sync({ force: false }).then(async () => {
     console.log('Drop and Re-sync Database with { force: true }');
     await initial();
 });

@@ -1468,7 +1468,7 @@ ol {
 .filter-range-wrap .range-slider .price-input input {
 	font-size: 16px;
 	color: #0d0d0d;
-	max-width: 16%;
+	max-width: 20%;
 	border: none;
 }
 
@@ -1577,6 +1577,8 @@ ol {
 }
 
 .pagination__option a {
+	margin-top: 50px;
+	margin-bottom: 50px;
 	display: inline-block;
 	height: 40px;
 	width: 40px;
@@ -3964,3 +3966,58 @@ dialog {
 		}
 	}
 }
+
+
+.product__item__pic_shop {
+	height: 280px;
+	border-radius: 10px;
+	position: relative;
+	overflow: hidden;
+}
+
+product__item__pic_shop .label {
+	font-size: 9px;
+	color: #ffffff;
+	font-weight: 300;
+	display: inline-block;
+	padding: 2px 8px;
+	text-transform: uppercase;
+	position: absolute;
+	left: 10px;
+	top: 10px;
+}
+
+/* .product__item.sale .product__item__pic .label {
+	background: #ca1515;
+}
+
+.product__item.sale .product__item__text .product__price {
+	color: #ca1515;
+} */
+/* .product__item__pic .label {
+	font-size: 12px;
+	color: #ffffff;
+	font-weight: 500;
+	display: inline-block;
+	padding: 2px 8px;
+	text-transform: uppercase;
+	position: absolute;
+	left: 10px;
+	top: 10px;
+}
+
+.product__item__pic .label.new {
+	background: #36a300;
+}
+
+.product__item__pic .label.stockout {
+	background: #111111;
+}
+
+.product__item__pic .label.stockblue {
+	background: #0066bd !important;
+}
+
+.product__item__pic .label.sale {
+	background: #ca1515;
+} */

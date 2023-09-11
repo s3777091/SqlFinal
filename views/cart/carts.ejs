@@ -1,6 +1,8 @@
 <!-- Shop Cart Section Begin -->
 <section class="shop-cart spad">
     <div class="container">
+
+        
         <div class="row">
             <div class="col-lg-12">
                 <div class="shop__cart__table">
@@ -129,10 +131,7 @@
     getCartsData();
 
 
-
-
     async function deleteCarts(id) {
-
         const payload = JSON.stringify({
             productId: id
         });
@@ -197,9 +196,6 @@
                 });
 
                 const mes = await response.json();
-
-
-
                 if (response.status === 500) {
                     alert(mes.message);
                 }
@@ -211,14 +207,11 @@
             } catch (error) {
                 console.error("An error occurred:", error);
             }
-
         } else {
             alert('cancel to payment product');
             location.reload();
         }
-
     }
-
 
     document.querySelector("#payment_click").addEventListener("click", () => {
         window.dialog.showModal();
